@@ -1,17 +1,19 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "tomeasterbrook/wire-fake",
+    "description": "Fill your single-page component state with realistic fake data during local development.",
     "keywords": [
-        ":vendor_name",
         "laravel",
-        ":package_slug"
+        "livewire",
+        "faker",
+        "wire-fake",
+        "fakeable"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/TomEasterbrook/WireFake",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Tom Easterbrook",
+            "email": "tomeasterbrook98@gmail.com",
             "role": "Developer"
         }
     ],
@@ -35,13 +37,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "TomEasterbrook\\WireFake\\": "src/",
+            "TomEasterbrook\\WireFake\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
+            "TomEasterbrook\\WireFake\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +65,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "TomEasterbrook\\WireFake\\WireFakeServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "WireFake": "TomEasterbrook\\WireFake\\Facades\\WireFake"
             }
         }
     },
