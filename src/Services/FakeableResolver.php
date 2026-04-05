@@ -1,6 +1,6 @@
 <?php
 
-namespace TomEasterbrook\WireFake;
+namespace TomEasterbrook\WireFake\Services;
 
 use Faker\Factory;
 use Faker\Generator;

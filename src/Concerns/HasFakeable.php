@@ -2,7 +2,7 @@
 
 namespace TomEasterbrook\WireFake\Concerns;
 
-use TomEasterbrook\WireFake\FakeableResolver;
+use TomEasterbrook\WireFake\Services\FakeableResolver;
 
 trait HasFakeable
 {

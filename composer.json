@@ -65,7 +65,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "TomEasterbrook\\WireFake\\WireFakeServiceProvider"
+                "TomEasterbrook\\WireFake\\Providers\\WireFakeServiceProvider"
             ],
             "aliases": {
                 "WireFake": "TomEasterbrook\\WireFake\\Facades\\WireFake"

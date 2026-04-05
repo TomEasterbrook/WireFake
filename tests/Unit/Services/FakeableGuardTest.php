@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
-use TomEasterbrook\WireFake\FakeableGuard;
+use TomEasterbrook\WireFake\Services\FakeableGuard;
 
 beforeEach(function () {
     config()->set('fakeable.enabled', true);

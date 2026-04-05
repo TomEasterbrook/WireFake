@@ -1,11 +1,11 @@
 <?php
 
-namespace TomEasterbrook\WireFake;
+namespace TomEasterbrook\WireFake\Providers;
 
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use TomEasterbrook\WireFake\Features\SupportsFakeable;
+use TomEasterbrook\WireFake\Livewire\Hooks\FakeableBanner;
 
 class WireFakeServiceProvider extends PackageServiceProvider
 {
@@ -19,6 +19,6 @@ class WireFakeServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
-        Livewire::componentHook(SupportsFakeable::class);
+        Livewire::componentHook(FakeableBanner::class);
     }
 }

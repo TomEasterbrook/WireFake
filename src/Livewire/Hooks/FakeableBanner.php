@@ -1,14 +1,13 @@
 <?php
 
-namespace TomEasterbrook\WireFake\Features;
+namespace TomEasterbrook\WireFake\Livewire\Hooks;
 
 use Livewire\ComponentHook;
-use TomEasterbrook\WireFake\FakeableGuard;
-use TomEasterbrook\WireFake\FakeableResolver;
-
+use TomEasterbrook\WireFake\Services\FakeableGuard;
+use TomEasterbrook\WireFake\Services\FakeableResolver;
 use function Livewire\after;
 
-class SupportsFakeable extends ComponentHook
+class FakeableBanner extends ComponentHook
 {
     protected static bool $indicatorInjected = false;
 

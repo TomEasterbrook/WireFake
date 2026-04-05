@@ -4,7 +4,7 @@ use Faker\Generator;
 use Livewire\Component;
 use Livewire\Livewire;
 use TomEasterbrook\WireFake\Attributes\Fakeable;
-use TomEasterbrook\WireFake\Features\SupportsFakeable;
+use TomEasterbrook\WireFake\Livewire\Hooks\FakeableBanner;
 
 // --- State class fixture ---
 
@@ -101,7 +101,7 @@ beforeEach(function () {
     config()->set('fakeable.allowed_hosts', ['localhost']);
     config()->set('fakeable.show_indicator', true);
     app()->detectEnvironment(fn () => 'local');
-    SupportsFakeable::resetIndicator();
+    FakeableBanner::resetIndicator();
 });
 
 it('applies property-level Fakeable attributes after mount', function () {
