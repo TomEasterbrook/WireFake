@@ -47,7 +47,16 @@ class FakeableBanner extends ComponentHook
             static::$indicatorInjected = true;
 
             return function ($html) {
-                return $html.static::indicatorHtml();
+                $indicator = static::indicatorHtml();
+
+                // Inject inside the root element's closing tag to avoid creating a second root element.
+                $lastClosingTag = strrpos($html, '</');
+
+                if ($lastClosingTag === false) {
+                    return $html.$indicator;
+                }
+
+                return substr($html, 0, $lastClosingTag).$indicator.substr($html, $lastClosingTag);
             };
         });
     }
