@@ -5,7 +5,9 @@ namespace TomEasterbrook\WireFake\Services;
 use Faker\Factory;
 use Faker\Generator;
 use InvalidArgumentException;
+use Livewire\Form;
 use ReflectionClass;
+use ReflectionNamedType;
 use ReflectionProperty;
 use TomEasterbrook\WireFake\Attributes\Fakeable;
 
@@ -20,6 +22,41 @@ class FakeableResolver
         $fakeValues = $this->resolvePropertyLevel($reflection, $component, $fakeValues);
 
         return $fakeValues;
+    }
+
+    public function resolveFormObjects(object $component): array
+    {
+        $reflection = new ReflectionClass($component);
+        $formResults = [];
+
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            $type = $property->getType();
+
+            if (! $type instanceof ReflectionNamedType || $type->isBuiltin()) {
+                continue;
+            }
+
+            if (! is_subclass_of($type->getName(), Form::class)) {
+                continue;
+            }
+
+            if (! $property->isInitialized($component)) {
+                continue;
+            }
+
+            $form = $property->getValue($component);
+            $formReflection = new ReflectionClass($form);
+            $formFakeValues = [];
+
+            $formFakeValues = $this->resolveClassLevel($formReflection, $form, $formFakeValues);
+            $formFakeValues = $this->resolvePropertyLevel($formReflection, $form, $formFakeValues);
+
+            if ($formFakeValues !== []) {
+                $formResults[$property->getName()] = $formFakeValues;
+            }
+        }
+
+        return $formResults;
     }
 
     public function resolveStateClass(object $component, string $stateClass): array
@@ -108,6 +145,16 @@ class FakeableResolver
             $fakeable = $attributes[0]->newInstance();
             $faker = $this->createFaker($fakeable->seed);
 
+            if ($fakeable->formatter === null) {
+                $enumValue = $this->resolveEnum($property, $faker);
+
+                if ($enumValue !== null) {
+                    $fakeValues[$property->getName()] = $enumValue;
+                }
+
+                continue;
+            }
+
             try {
                 if (is_array($fakeable->formatter)) {
                     $fakeValues[$property->getName()] = $this->resolveArrayShape($faker, $fakeable->formatter, $fakeable->count);
@@ -121,6 +168,29 @@ class FakeableResolver
         }
 
         return $fakeValues;
+    }
+
+    protected function resolveEnum(ReflectionProperty $property, Generator $faker): mixed
+    {
+        $type = $property->getType();
+
+        if (! $type instanceof ReflectionNamedType || $type->isBuiltin()) {
+            return null;
+        }
+
+        $typeName = $type->getName();
+
+        if (! enum_exists($typeName)) {
+            return null;
+        }
+
+        $cases = $typeName::cases();
+
+        if ($cases === []) {
+            return null;
+        }
+
+        return $faker->randomElement($cases);
     }
 
     protected function resolveArrayShape(Generator $faker, array $shape, int $count): array

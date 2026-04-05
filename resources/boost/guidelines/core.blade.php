@@ -78,6 +78,59 @@ class ReferencesPage extends Component
 </code-snippet>
 @endverbatim
 
+### Enum properties
+
+Use a bare `#[Fakeable]` (no formatter) on nullable backed-enum properties. WireFake will pick a random case. Use `seed` for deterministic results.
+
+@verbatim
+<code-snippet name="WireFake enum support" lang="php">
+use Livewire\Component;
+use TomEasterbrook\WireFake\Attributes\Fakeable;
+
+enum Status: string
+{
+    case Pending = 'pending';
+    case Active = 'active';
+    case Archived = 'archived';
+}
+
+class TaskPage extends Component
+{
+    #[Fakeable]
+    public ?Status $status = null;
+
+    #[Fakeable(seed: 42)]
+    public ?Status $stableStatus = null;
+}
+</code-snippet>
+@endverbatim
+
+### Livewire Form objects
+
+`#[Fakeable]` attributes on public properties of `Livewire\Form` subclasses are resolved automatically — no extra setup needed. The same empty-only rules apply.
+
+@verbatim
+<code-snippet name="WireFake form object" lang="php">
+use Livewire\Component;
+use Livewire\Form;
+use TomEasterbrook\WireFake\Attributes\Fakeable;
+
+class ContactForm extends Form
+{
+    #[Fakeable('name')]
+    public ?string $name = null;
+
+    #[Fakeable('safeEmail')]
+    public ?string $email = null;
+}
+
+class ContactPage extends Component
+{
+    public ContactForm $form;
+}
+</code-snippet>
+@endverbatim
+
 ### `mount()` and `HasFakeable`
 
 Use `TomEasterbrook\WireFake\Concerns\HasFakeable` and `$this->fakeable(SomeStateClass::class)` inside `mount()` when you need to register state programmatically; same empty-only rules apply. The `fakeable()` method checks the same guard conditions as the automatic hook — it will no-op outside of `local` environment or when the guard fails.

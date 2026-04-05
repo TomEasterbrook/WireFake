@@ -25,6 +25,14 @@ class FakeableBanner extends ComponentHook
             foreach ($resolved as $property => $value) {
                 $component->{$property} = $value;
             }
+
+            $formResults = $resolver->resolveFormObjects($component);
+
+            foreach ($formResults as $formProperty => $formValues) {
+                foreach ($formValues as $property => $value) {
+                    $component->{$formProperty}->{$property} = $value;
+                }
+            }
         });
     }
 }

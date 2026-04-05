@@ -10,7 +10,7 @@ class Fakeable
     public array $formatterArguments;
 
     public function __construct(
-        public string|array $formatter,
+        public string|array|null $formatter = null,
         public ?int $seed = null,
         public int $count = 1,
         mixed ...$formatterArguments,
