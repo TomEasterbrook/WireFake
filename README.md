@@ -1,4 +1,6 @@
-# Livewire Fakeable
+<p align="center">
+    <img src="docs/img/logo.png" alt="Livewire Fakeable" width="800">
+</p>
 
 <p align="center">
     <a href="https://github.com/TomEasterbrook/livewire-fakeable/actions"><img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/TomEasterbrook/livewire-fakeable/run-tests.yml?branch=main&label=tests&style=flat-square"></a>

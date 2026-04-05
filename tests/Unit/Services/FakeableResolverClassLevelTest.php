@@ -65,7 +65,7 @@ class ThrowingState
 {
     public function __invoke(Generator $faker): array
     {
-        throw new \RuntimeException('Something broke');
+        throw new RuntimeException('Something broke');
     }
 }
 

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Livewire\Component;
 use Livewire\Livewire;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use TomEasterbrook\LivewireFakeable\Attributes\Fakeable;
 use TomEasterbrook\LivewireFakeable\Http\Middleware\InjectFakeableBanner;
 
@@ -247,13 +248,13 @@ it('does not inject banner into response with binary-like content', function () 
 });
 
 it('handles streamed response where getContent returns false', function () {
-    $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () {
+    $response = new StreamedResponse(function () {
         echo '<html><body>streamed</body></html>';
     });
 
     $middleware = new InjectFakeableBanner;
     $result = $middleware->handle(new Request, fn () => $response);
 
-    expect($result)->toBeInstanceOf(\Symfony\Component\HttpFoundation\StreamedResponse::class)
+    expect($result)->toBeInstanceOf(StreamedResponse::class)
         ->and($result->getContent())->toBeFalse();
 });
