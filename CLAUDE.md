@@ -28,6 +28,10 @@ The package hooks into Livewire's component lifecycle:
 5. **HasFakeable trait** (`src/Concerns/HasFakeable.php`) — Optional trait for manual `fakeable()` invocation from `mount()`.
 6. **WireFakeServiceProvider** (`src/Providers/WireFakeServiceProvider.php`) — Extends Spatie's `PackageServiceProvider`, registers config and Livewire hook.
 
+## Boost Guidelines
+
+When adding or changing features, update `resources/boost/guidelines/core.blade.php` to document the new behaviour. This file is used by Laravel Boost to provide AI-assisted guidance to consumers of the package.
+
 ## Testing
 
 - Uses Pest 4 with `orchestra/testbench` for Laravel package testing

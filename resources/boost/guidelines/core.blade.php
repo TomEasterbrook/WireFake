@@ -1,6 +1,6 @@
 ## WireFake (tomeasterbrook/wire-fake)
 
-WireFake fills **empty** public Livewire 4 component state with [Faker](https://fakerphp.org/formatters/) during **local** development. It runs **after** `mount` and only sets properties that are still `null` or `''` — it never overwrites real data you assigned in `mount` or elsewhere.
+WireFake fills **empty** public Livewire 4 component state with [Faker](https://fakerphp.org/formatters/) during **local** development. It runs **after** `mount` and only sets properties that are still `null`, `''`, or `[]` — it never overwrites real data you assigned in `mount` or elsewhere.
 
 ### When faking runs
 
@@ -55,6 +55,26 @@ class ProfileFormState
 // #[Fakeable(ProfileFormState::class)]
 // public string $name = '';
 // public string $email = '';
+</code-snippet>
+@endverbatim
+
+### Property-level: array shapes
+
+Pass an array of `key => formatter` pairs to generate structured array data without a state class. Use `count` to control how many rows are generated (defaults to 1).
+
+@verbatim
+<code-snippet name="WireFake array shape" lang="php">
+use Livewire\Component;
+use TomEasterbrook\WireFake\Attributes\Fakeable;
+
+class ReferencesPage extends Component
+{
+    #[Fakeable(['name' => 'name', 'phone' => 'phoneNumber', 'email' => 'safeEmail'], count: 2)]
+    public array $references = [];
+
+    #[Fakeable(['city' => 'city', 'postcode' => 'postcode'])]
+    public array $address = [];
+}
 </code-snippet>
 @endverbatim
 

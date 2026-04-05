@@ -22,6 +22,19 @@ class NameAndEmailState
     }
 }
 
+class ReferencesState
+{
+    public function __invoke(Generator $faker): array
+    {
+        return [
+            'references' => [
+                ['name' => $faker->name(), 'relationship' => 'Line manager', 'phone' => $faker->phoneNumber(), 'email' => ''],
+                ['name' => $faker->name(), 'relationship' => 'Supervisor', 'phone' => '', 'email' => $faker->safeEmail()],
+            ],
+        ];
+    }
+}
+
 class OverflowState
 {
     public function __invoke(Generator $faker): array
@@ -101,6 +114,18 @@ class ClassAndPropertyOverlapComponent
     public ?string $name = null;
 
     public ?string $email = null;
+}
+
+#[Fakeable(ReferencesState::class)]
+class ArrayPropertyComponent
+{
+    public array $references = [];
+}
+
+#[Fakeable(ReferencesState::class)]
+class ArrayPropertyWithExistingValueComponent
+{
+    public array $references = [['name' => 'Existing', 'relationship' => 'Friend', 'phone' => '123', 'email' => '']];
 }
 
 // --- Tests ---
@@ -222,4 +247,23 @@ it('fakeable() method can be called programmatically like in mount()', function 
 
     expect($component->name)->toBeString()->not->toBeEmpty()
         ->and($component->email)->toBeString()->toContain('@');
+});
+
+it('fills array properties from state class', function () {
+    $component = new ArrayPropertyComponent;
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->toHaveKey('references')
+        ->and($result['references'])->toBeArray()->toHaveCount(2)
+        ->and($result['references'][0])->toHaveKeys(['name', 'relationship', 'phone', 'email'])
+        ->and($result['references'][1])->toHaveKeys(['name', 'relationship', 'phone', 'email']);
+});
+
+it('does not overwrite non-empty array properties', function () {
+    $component = new ArrayPropertyWithExistingValueComponent;
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->not->toHaveKey('references');
 });

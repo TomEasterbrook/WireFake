@@ -10,8 +10,9 @@ class Fakeable
     public array $formatterArguments;
 
     public function __construct(
-        public string $formatter,
+        public string|array $formatter,
         public ?int $seed = null,
+        public int $count = 1,
         mixed ...$formatterArguments,
     ) {
         $this->formatterArguments = $formatterArguments;

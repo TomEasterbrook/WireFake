@@ -4,6 +4,7 @@ namespace TomEasterbrook\WireFake\Services;
 
 use Faker\Factory;
 use Faker\Generator;
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionProperty;
 use TomEasterbrook\WireFake\Attributes\Fakeable;
@@ -41,7 +42,7 @@ class FakeableResolver
 
             $currentValue = $property->getValue($component);
 
-            if ($currentValue !== null && $currentValue !== '') {
+            if ($currentValue !== null && $currentValue !== '' && $currentValue !== []) {
                 continue;
             }
 
@@ -74,7 +75,7 @@ class FakeableResolver
 
                 $currentValue = $property->getValue($component);
 
-                if ($currentValue !== null && $currentValue !== '') {
+                if ($currentValue !== null && $currentValue !== '' && $currentValue !== []) {
                     continue;
                 }
 
@@ -100,17 +101,43 @@ class FakeableResolver
 
             $currentValue = $property->getValue($component);
 
-            if ($currentValue !== null && $currentValue !== '') {
+            if ($currentValue !== null && $currentValue !== '' && $currentValue !== []) {
                 continue;
             }
 
             $fakeable = $attributes[0]->newInstance();
             $faker = $this->createFaker($fakeable->seed);
 
-            $fakeValues[$property->getName()] = $faker->{$fakeable->formatter}(...$fakeable->formatterArguments);
+            try {
+                if (is_array($fakeable->formatter)) {
+                    $fakeValues[$property->getName()] = $this->resolveArrayShape($faker, $fakeable->formatter, $fakeable->count);
+                } else {
+                    $fakeValues[$property->getName()] = $faker->{$fakeable->formatter}(...$fakeable->formatterArguments);
+                }
+            } catch (InvalidArgumentException) {
+                $formatter = is_array($fakeable->formatter) ? json_encode($fakeable->formatter) : $fakeable->formatter;
+                report(new InvalidArgumentException("WireFake: unknown Faker formatter \"{$formatter}\" on property \${$property->getName()}"));
+            }
         }
 
         return $fakeValues;
+    }
+
+    protected function resolveArrayShape(Generator $faker, array $shape, int $count): array
+    {
+        $rows = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $row = [];
+
+            foreach ($shape as $key => $formatter) {
+                $row[$key] = $faker->{$formatter}();
+            }
+
+            $rows[] = $row;
+        }
+
+        return $rows;
     }
 
     protected function createFaker(?int $seed): Generator
