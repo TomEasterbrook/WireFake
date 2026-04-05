@@ -32,7 +32,9 @@ Requires **PHP 8.1+**, **Laravel 10–13**, and **Livewire 4** (`livewire/livewi
 
 ## Usage
 
-Annotate public properties with `#[Fakeable]` and a [Faker formatter](https://fakerphp.org/formatters/) name. WireFake runs **after** `mount` and only fills properties that are still `null` or `''`.
+### Explicit formatters
+
+Annotate public properties with `#[Fakeable]` and a [Faker formatter](https://fakerphp.org/formatters/) name. WireFake runs **after** `mount` and only fills properties that are still `null`, `''`, or `[]`.
 
 ```php
 use Livewire\Component;
@@ -54,12 +56,96 @@ class EditProfilePage extends Component
 Pass arguments through to Faker, or fix a seed for stable reloads (screenshots, demos):
 
 ```php
-#[Fakeable('sentence', words: 3)]
+#[Fakeable('sentence', nbWords: 3)]
 public string $title = '';
 
 #[Fakeable('name', seed: 42)]
 public string $name = '';
 ```
+
+### Bare `#[Fakeable]` — automatic inference
+
+Use the attribute without a formatter and WireFake will infer one automatically. It checks in order:
+
+1. **Enum type** — picks a random case from the property's enum type.
+2. **Property name** — maps common names to Faker formatters (see table below).
+3. **PHP type** — falls back to the property's type (`string` → `word`, `int` → `randomNumber`, `float` → `randomFloat`, `bool` → `boolean`).
+
+```php
+#[Fakeable]
+public string $email = '';       // inferred → safeEmail
+
+#[Fakeable]
+public int $quantity = 0;        // inferred → randomNumber
+
+#[Fakeable]
+public OrderStatus $status;      // inferred → random enum case
+```
+
+<details>
+<summary>Property name → formatter map</summary>
+
+| Property name(s) | Formatter |
+|---|---|
+| `name`, `fullName`, `full_name` | `name` |
+| `firstName`, `first_name` | `firstName` |
+| `lastName`, `last_name` | `lastName` |
+| `email`, `emailAddress`, `email_address` | `safeEmail` |
+| `phone`, `phoneNumber`, `phone_number` | `phoneNumber` |
+| `address` | `address` |
+| `street`, `streetAddress`, `street_address` | `streetAddress` |
+| `city` | `city` |
+| `state` | `state` |
+| `country` | `country` |
+| `postcode`, `zipCode`, `zip_code` | `postcode` |
+| `company`, `companyName`, `company_name` | `company` |
+| `title` | `sentence` |
+| `description`, `bio` | `paragraph` |
+| `summary` | `sentence` |
+| `url`, `website` | `url` |
+| `username`, `user_name` | `userName` |
+
+</details>
+
+### Enums
+
+PHP enums (unit, string-backed, and int-backed) are supported out of the box. A bare `#[Fakeable]` attribute detects the enum type and picks a random case. Seeds are supported for deterministic selection.
+
+```php
+enum OrderStatus: string
+{
+    case Pending = 'pending';
+    case Shipped = 'shipped';
+    case Delivered = 'delivered';
+}
+
+#[Fakeable]
+public OrderStatus $status;
+
+#[Fakeable(seed: 42)]
+public OrderStatus $lockedStatus;
+```
+
+### Array shapes
+
+Generate arrays of fake data by passing an array shape — keys are output keys, values are Faker formatter names. Use `count` to control the number of rows:
+
+```php
+#[Fakeable(['name' => 'name', 'email' => 'safeEmail'], count: 3)]
+public array $users = [];
+```
+
+This produces an array like:
+
+```php
+[
+    ['name' => 'Jane Doe', 'email' => 'jane@example.com'],
+    ['name' => 'John Smith', 'email' => 'john@example.com'],
+    ['name' => 'Alice Brown', 'email' => 'alice@example.com'],
+]
+```
+
+### State classes
 
 For a whole component, use a state class that returns an array keyed by property name, then reference it on the class:
 
@@ -91,7 +177,36 @@ class EditProfilePage extends Component
 }
 ```
 
-You can also call `fakeable()` from `mount()` with the `HasFakeable` trait, and mix class-level and property-level `#[Fakeable]` as needed.
+You can mix class-level and property-level `#[Fakeable]` — property-level attributes take precedence.
+
+### Livewire Form objects
+
+WireFake automatically resolves `#[Fakeable]` attributes on [Livewire Form](https://livewire.laravel.com/docs/forms) properties too. Both property-level and class-level attributes work on Form classes:
+
+```php
+use Livewire\Form;
+use TomEasterbrook\WireFake\Attributes\Fakeable;
+
+class ProfileForm extends Form
+{
+    #[Fakeable('name')]
+    public string $name = '';
+
+    #[Fakeable('safeEmail')]
+    public string $email = '';
+}
+```
+
+```php
+class EditProfilePage extends Component
+{
+    public ProfileForm $form;
+}
+```
+
+### `HasFakeable` trait
+
+You can also call `fakeable()` from `mount()` with the `HasFakeable` trait for programmatic control. The trait respects the same guard conditions.
 
 ```php
 use App\FakerStates\ProfileFormState;
@@ -112,13 +227,22 @@ class EditProfilePage extends Component
 }
 ```
 
-**Locale** — set `locale` in `config/fakeable.php` (default `en_US`).
+### Locale & indicator
 
-**Indicator** — when faking is active, a small **WireFake** label is added to the HTML so you do not confuse local data with production. Disable with `show_indicator` in the same config file.
+**Locale** — set `locale` in `config/fakeable.php` (default `en_US`). Any [Faker-supported locale](https://fakerphp.org/) works.
+
+**Indicator** — when faking is active, a collapsible banner is injected before `</body>` so you do not confuse local data with production. Its collapsed state persists in `localStorage`. Disable with `show_indicator` in the config.
 
 ## Safety
 
-WireFake is for **local development** only. Faking runs only when **all** of the following are true: the package is enabled in config, the app environment is `local`, the request host matches `allowed_hosts`, and `Faker\Generator` exists. Typical `APP_ENV=testing` is not `local`, so tests are unaffected.
+WireFake is for **local development** only. Faking runs only when **all** of the following are true:
+
+1. `enabled` is `true` in config
+2. The app environment is `local`
+3. The request host matches at least one `allowed_hosts` pattern (case-insensitive `fnmatch` globs — `*.test` matches `myapp.test` and `sub.myapp.test`)
+4. `Faker\Generator` exists as a class
+
+Because `APP_ENV=testing` is not `local`, your test suite is unaffected. If any condition fails, WireFake does nothing — no properties are touched, no banner is injected.
 
 ## Configuration
 
