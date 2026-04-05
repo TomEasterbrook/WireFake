@@ -45,9 +45,14 @@ class FakeableGuard
 
     protected function hostMatchesPattern(string $host, string $pattern): bool
     {
-        $regex = '/^'.str_replace('\*', '[^.]+', preg_quote($pattern, '/')).'$/i';
+        $pattern = trim($pattern);
 
-        return (bool) preg_match($regex, $host);
+        if ($pattern === '') {
+            return false;
+        }
+
+        // Glob semantics: *.test matches myapp.test and sub.myapp.test (any prefix before the suffix).
+        return fnmatch($pattern, $host, FNM_CASEFOLD);
     }
 
     protected function fakerExists(): bool

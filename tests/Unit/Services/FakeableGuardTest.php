@@ -48,8 +48,10 @@ it('matches wildcard host patterns', function () {
         ->and(createGuard('localhost')->allowed())->toBeTrue();
 });
 
-it('does not match partial wildcard hosts', function () {
-    expect(createGuard('sub.myapp.test')->allowed())->toBeFalse();
+it('matches multi-level subdomains before a configured suffix', function () {
+    expect(createGuard('sub.myapp.test')->allowed())->toBeTrue()
+        ->and(createGuard('a.b.c.test')->allowed())->toBeTrue()
+        ->and(createGuard('tier.two.dev')->allowed())->toBeTrue();
 });
 
 it('returns false when Faker class does not exist', function () {
