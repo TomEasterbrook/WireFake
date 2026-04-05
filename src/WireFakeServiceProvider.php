@@ -2,8 +2,10 @@
 
 namespace TomEasterbrook\WireFake;
 
+use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use TomEasterbrook\WireFake\Features\SupportsFakeable;
 
 class WireFakeServiceProvider extends PackageServiceProvider
 {
@@ -13,5 +15,10 @@ class WireFakeServiceProvider extends PackageServiceProvider
             ->name('wire-fake')
             ->hasConfigFile('fakeable')
             ->hasViews();
+    }
+
+    public function packageBooted(): void
+    {
+        Livewire::componentHook(SupportsFakeable::class);
     }
 }
