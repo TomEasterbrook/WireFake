@@ -23,6 +23,8 @@ class WireFakeServiceProvider extends PackageServiceProvider
     {
         Livewire::componentHook(FakeableBanner::class);
 
-        $this->app->make(Kernel::class)->pushMiddleware(InjectWireFakeBanner::class);
+        if ($this->app->environment('local')) {
+            $this->app->make(Kernel::class)->pushMiddleware(InjectWireFakeBanner::class);
+        }
     }
 }

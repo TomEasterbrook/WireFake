@@ -80,7 +80,7 @@ class ReferencesPage extends Component
 
 ### `mount()` and `HasFakeable`
 
-Use `TomEasterbrook\WireFake\Concerns\HasFakeable` and `$this->fakeable(SomeStateClass::class)` inside `mount()` when you need to register state programmatically; same empty-only rules apply.
+Use `TomEasterbrook\WireFake\Concerns\HasFakeable` and `$this->fakeable(SomeStateClass::class)` inside `mount()` when you need to register state programmatically; same empty-only rules apply. The `fakeable()` method checks the same guard conditions as the automatic hook — it will no-op outside of `local` environment or when the guard fails.
 
 ### Configuration
 

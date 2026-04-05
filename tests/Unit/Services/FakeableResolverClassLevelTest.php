@@ -7,6 +7,9 @@ use TomEasterbrook\WireFake\Services\FakeableResolver;
 
 beforeEach(function () {
     config()->set('fakeable.locale', 'en_US');
+    config()->set('fakeable.enabled', true);
+    config()->set('fakeable.allowed_hosts', ['localhost']);
+    app()->detectEnvironment(fn () => 'local');
 });
 
 // --- State class fixtures ---
