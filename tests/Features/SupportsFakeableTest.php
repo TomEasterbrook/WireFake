@@ -4,7 +4,7 @@ use Faker\Generator;
 use Livewire\Component;
 use Livewire\Livewire;
 use TomEasterbrook\WireFake\Attributes\Fakeable;
-use TomEasterbrook\WireFake\Livewire\Hooks\FakeableBanner;
+use TomEasterbrook\WireFake\Http\Middleware\InjectWireFakeBanner;
 
 // --- State class fixture ---
 
@@ -101,7 +101,6 @@ beforeEach(function () {
     config()->set('fakeable.allowed_hosts', ['localhost']);
     config()->set('fakeable.show_indicator', true);
     app()->detectEnvironment(fn () => 'local');
-    FakeableBanner::resetIndicator();
 });
 
 it('applies property-level Fakeable attributes after mount', function () {
@@ -158,33 +157,50 @@ it('leaves components without Fakeable attributes unchanged', function () {
         ->assertSet('name', null);
 });
 
-// --- Indicator tests ---
+// --- Banner middleware tests ---
 
-it('injects indicator when show_indicator is true and guard passes', function () {
-    Livewire::test(PropertyLevelFakeableComponent::class)
-        ->assertSeeHtml('id="wirefake-indicator"')
-        ->assertSeeHtml('WireFake');
+it('injects banner when show_indicator is true and guard passes', function () {
+    $html = '<html><body><div>content</div></body></html>';
+    $response = new \Illuminate\Http\Response($html);
+
+    $middleware = new InjectWireFakeBanner;
+    $result = $middleware->handle(new \Illuminate\Http\Request, fn () => $response);
+
+    expect($result->getContent())
+        ->toContain('id="wirefake-banner"')
+        ->toContain('WIREFAKE');
 });
 
-it('does not inject indicator when show_indicator is false', function () {
+it('does not inject banner when show_indicator is false', function () {
     config()->set('fakeable.show_indicator', false);
 
-    Livewire::test(PropertyLevelFakeableComponent::class)
-        ->assertDontSeeHtml('wirefake-indicator');
+    $html = '<html><body><div>content</div></body></html>';
+    $response = new \Illuminate\Http\Response($html);
+
+    $middleware = new InjectWireFakeBanner;
+    $result = $middleware->handle(new \Illuminate\Http\Request, fn () => $response);
+
+    expect($result->getContent())->not->toContain('wirefake-banner');
 });
 
-it('does not inject indicator when guard fails', function () {
+it('does not inject banner when guard fails', function () {
     config()->set('fakeable.enabled', false);
 
-    Livewire::test(PropertyLevelFakeableComponent::class)
-        ->assertDontSeeHtml('wirefake-indicator');
+    $html = '<html><body><div>content</div></body></html>';
+    $response = new \Illuminate\Http\Response($html);
+
+    $middleware = new InjectWireFakeBanner;
+    $result = $middleware->handle(new \Illuminate\Http\Request, fn () => $response);
+
+    expect($result->getContent())->not->toContain('wirefake-banner');
 });
 
-it('injects indicator only once across multiple components', function () {
-    Livewire::test(PropertyLevelFakeableComponent::class)
-        ->assertSeeHtml('wirefake-indicator');
+it('does not inject banner when response has no body tag', function () {
+    $html = '<div>partial content</div>';
+    $response = new \Illuminate\Http\Response($html);
 
-    // Second component should not get a duplicate indicator
-    $html = Livewire::test(PropertyLevelFakeableComponent::class)->html();
-    expect(substr_count($html, 'wirefake-indicator'))->toBe(0);
+    $middleware = new InjectWireFakeBanner;
+    $result = $middleware->handle(new \Illuminate\Http\Request, fn () => $response);
+
+    expect($result->getContent())->toBe($html);
 });

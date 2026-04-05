@@ -4,7 +4,6 @@ use Faker\Generator;
 use Livewire\Component;
 use Livewire\Livewire;
 use TomEasterbrook\WireFake\Attributes\Fakeable;
-use TomEasterbrook\WireFake\Livewire\Hooks\FakeableBanner;
 use TomEasterbrook\WireFake\Services\FakeableResolver;
 
 /**
@@ -28,7 +27,6 @@ beforeEach(function () {
     config()->set('fakeable.allowed_hosts', ['localhost']);
     config()->set('fakeable.show_indicator', false);
     app()->detectEnvironment(fn () => 'local');
-    FakeableBanner::resetIndicator();
 });
 
 it('fills property-level Fakeable attributes on an anonymous Livewire component', function () {
