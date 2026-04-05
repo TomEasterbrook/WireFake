@@ -17,12 +17,8 @@ class WireFakeServiceProvider extends PackageServiceProvider
             ->hasViews();
     }
 
-    public function packageRegistered(): void
+    public function packageBooted(): void
     {
-        // Register before Livewire::boot() runs ComponentHookRegistry::boot(), so the hook
-        // participates in the normal render / renderIsland pipelines (not only EventBus after()).
-        $this->app->booting(function () {
-            Livewire::componentHook(FakeableBanner::class);
-        });
+        Livewire::componentHook(FakeableBanner::class);
     }
 }

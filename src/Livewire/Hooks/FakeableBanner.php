@@ -6,57 +6,50 @@ use Livewire\ComponentHook;
 use TomEasterbrook\WireFake\Services\FakeableGuard;
 use TomEasterbrook\WireFake\Services\FakeableResolver;
 
+use function Livewire\after;
+
 class FakeableBanner extends ComponentHook
 {
     protected static bool $indicatorInjected = false;
 
-    public function mount($params, $parent, $attributes): void
+    public static function provide(): void
     {
-        $guard = app(FakeableGuard::class);
+        after('mount', function ($component) {
+            $guard = app(FakeableGuard::class);
 
-        if (! $guard->allowed()) {
-            return;
-        }
+            if (! $guard->allowed()) {
+                return;
+            }
 
-        $resolver = new FakeableResolver;
-        $resolved = $resolver->resolve($this->component);
+            $resolver = new FakeableResolver;
+            $resolved = $resolver->resolve($component);
 
-        foreach ($resolved as $property => $value) {
-            $this->component->{$property} = $value;
-        }
-    }
+            foreach ($resolved as $property => $value) {
+                $component->{$property} = $value;
+            }
+        });
 
-    public function render($view, $data): ?callable
-    {
-        return $this->indicatorFinisher();
-    }
+        after('render', function ($component, $view, $data) {
+            if (static::$indicatorInjected) {
+                return;
+            }
 
-    public function renderIsland($name, $view, $data): ?callable
-    {
-        return $this->indicatorFinisher();
-    }
+            if (! config('fakeable.show_indicator')) {
+                return;
+            }
 
-    protected function indicatorFinisher(): ?callable
-    {
-        if (static::$indicatorInjected) {
-            return null;
-        }
+            $guard = app(FakeableGuard::class);
 
-        if (! config('fakeable.show_indicator')) {
-            return null;
-        }
+            if (! $guard->allowed()) {
+                return;
+            }
 
-        $guard = app(FakeableGuard::class);
+            static::$indicatorInjected = true;
 
-        if (! $guard->allowed()) {
-            return null;
-        }
-
-        static::$indicatorInjected = true;
-
-        return function ($html, $replaceHtml) {
-            $replaceHtml($html.static::indicatorHtml());
-        };
+            return function ($html) {
+                return $html.static::indicatorHtml();
+            };
+        });
     }
 
     public static function indicatorHtml(): string
