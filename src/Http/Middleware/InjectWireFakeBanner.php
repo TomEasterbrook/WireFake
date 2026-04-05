@@ -40,11 +40,17 @@ class InjectWireFakeBanner
     public static function bannerHtml(): string
     {
         return <<<'HTML'
-        <div id="wirefake-banner" style="position:fixed;bottom:0;left:0;right:0;z-index:99999;display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 12px;background:linear-gradient(135deg,#1e1e2e,#2d2d44);border-top:2px solid #f59e0b;font-family:system-ui,-apple-system,sans-serif;font-size:12px;color:#e0e0e0;">
-            <span style="display:inline-flex;align-items:center;gap:6px;">
-                <span style="background:#f59e0b;color:#1e1e2e;font-weight:700;padding:1px 6px;border-radius:3px;font-size:11px;letter-spacing:0.5px;">WIREFAKE</span>
-                <span>Component data has been filled with fake values</span>
-            </span>
+        <div id="wirefake-banner" style="position:fixed;bottom:0;left:0;right:0;z-index:99999;font-family:system-ui,-apple-system,sans-serif;font-size:12px;">
+            <div id="wirefake-banner-expanded" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 12px;background:linear-gradient(135deg,#1e1e2e,#2d2d44);border-top:2px solid #f59e0b;color:#e0e0e0;">
+                <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span style="background:#f59e0b;color:#1e1e2e;font-weight:700;padding:1px 6px;border-radius:3px;font-size:11px;letter-spacing:0.5px;">WIREFAKE</span>
+                    <span>Components using <code style="background:#383850;padding:1px 4px;border-radius:3px;font-size:11px;">#[Fakeable]</code> attributes have their properties filled with fake data</span>
+                </span>
+                <button onclick="document.getElementById('wirefake-banner-expanded').style.display='none';document.getElementById('wirefake-banner-collapsed').style.display='flex';" style="background:none;border:none;color:#e0e0e0;cursor:pointer;padding:0 4px;font-size:16px;line-height:1;opacity:0.7;" title="Collapse">&#x2715;</button>
+            </div>
+            <div id="wirefake-banner-collapsed" style="display:none;justify-content:flex-end;padding:0;">
+                <button onclick="document.getElementById('wirefake-banner-collapsed').style.display='none';document.getElementById('wirefake-banner-expanded').style.display='flex';" style="background:#1e1e2e;border:1px solid #f59e0b;border-bottom:none;border-right:none;color:#f59e0b;cursor:pointer;padding:2px 8px;border-radius:4px 0 0 0;font-weight:700;font-size:11px;font-family:inherit;letter-spacing:0.5px;" title="Expand">WF</button>
+            </div>
         </div>
         HTML;
     }
