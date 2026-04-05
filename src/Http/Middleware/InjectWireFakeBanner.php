@@ -46,12 +46,13 @@ class InjectWireFakeBanner
                     <span style="background:#f59e0b;color:#1e1e2e;font-weight:700;padding:1px 6px;border-radius:3px;font-size:11px;letter-spacing:0.5px;">WIREFAKE</span>
                     <span>Components using <code style="background:#383850;padding:1px 4px;border-radius:3px;font-size:11px;">#[Fakeable]</code> attributes have their properties filled with fake data</span>
                 </span>
-                <button onclick="document.getElementById('wirefake-banner-expanded').style.display='none';document.getElementById('wirefake-banner-collapsed').style.display='flex';" style="background:none;border:none;color:#e0e0e0;cursor:pointer;padding:0 4px;font-size:16px;line-height:1;opacity:0.7;" title="Collapse">&#x2715;</button>
+                <button onclick="localStorage.setItem('wirefake-collapsed','1');document.getElementById('wirefake-banner-expanded').style.display='none';document.getElementById('wirefake-banner-collapsed').style.display='flex';" style="background:none;border:none;color:#e0e0e0;cursor:pointer;padding:0 4px;font-size:16px;line-height:1;opacity:0.7;" title="Collapse">&#x2715;</button>
             </div>
             <div id="wirefake-banner-collapsed" style="display:none;justify-content:flex-end;padding:0;">
-                <button onclick="document.getElementById('wirefake-banner-collapsed').style.display='none';document.getElementById('wirefake-banner-expanded').style.display='flex';" style="background:#1e1e2e;border:1px solid #f59e0b;border-bottom:none;border-right:none;color:#f59e0b;cursor:pointer;padding:2px 8px;border-radius:4px 0 0 0;font-weight:700;font-size:11px;font-family:inherit;letter-spacing:0.5px;" title="Expand">WF</button>
+                <button onclick="localStorage.removeItem('wirefake-collapsed');document.getElementById('wirefake-banner-collapsed').style.display='none';document.getElementById('wirefake-banner-expanded').style.display='flex';" style="background:#1e1e2e;border:1px solid #f59e0b;border-bottom:none;border-right:none;color:#f59e0b;cursor:pointer;padding:2px 8px;border-radius:4px 0 0 0;font-weight:700;font-size:11px;font-family:inherit;letter-spacing:0.5px;" title="Expand">WF</button>
             </div>
         </div>
+        <script>if(localStorage.getItem('wirefake-collapsed')){document.getElementById('wirefake-banner-expanded').style.display='none';document.getElementById('wirefake-banner-collapsed').style.display='flex';}</script>
         HTML;
     }
 }
