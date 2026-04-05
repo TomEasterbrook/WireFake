@@ -4,6 +4,7 @@ namespace TomEasterbrook\WireFake\Tests;
 
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
+use TomEasterbrook\WireFake\WireFakeServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -11,6 +12,7 @@ class TestCase extends Orchestra
     {
         return [
             LivewireServiceProvider::class,
+            WireFakeServiceProvider::class,
         ];
     }
 

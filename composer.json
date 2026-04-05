@@ -38,8 +38,7 @@
     },
     "autoload": {
         "psr-4": {
-            "TomEasterbrook\\WireFake\\": "src/",
-            "TomEasterbrook\\WireFake\\Database\\Factories\\": "database/factories/"
+            "TomEasterbrook\\WireFake\\": "src/"
         }
     },
     "autoload-dev": {
