@@ -4,7 +4,7 @@ use Faker\Generator;
 use Livewire\Component;
 use Livewire\Form;
 use Livewire\Livewire;
-use TomEasterbrook\WireFake\Attributes\Fakeable;
+use TomEasterbrook\LivewireFakeable\Attributes\Fakeable;
 
 // --- State class fixtures ---
 

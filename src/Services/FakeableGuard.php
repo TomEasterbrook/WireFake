@@ -1,6 +1,6 @@
 <?php
 
-namespace TomEasterbrook\WireFake\Services;
+namespace TomEasterbrook\LivewireFakeable\Services;
 
 use Faker\Generator;
 use Illuminate\Http\Request;

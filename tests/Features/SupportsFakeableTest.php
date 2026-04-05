@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Livewire\Component;
 use Livewire\Livewire;
-use TomEasterbrook\WireFake\Attributes\Fakeable;
-use TomEasterbrook\WireFake\Http\Middleware\InjectWireFakeBanner;
+use TomEasterbrook\LivewireFakeable\Attributes\Fakeable;
+use TomEasterbrook\LivewireFakeable\Http\Middleware\InjectFakeableBanner;
 
 // --- State class fixture ---
 
@@ -166,12 +166,12 @@ it('injects banner when show_indicator is true and guard passes', function () {
     $html = '<html><body><div>content</div></body></html>';
     $response = new Response($html);
 
-    $middleware = new InjectWireFakeBanner;
+    $middleware = new InjectFakeableBanner;
     $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->getContent())
-        ->toContain('id="wirefake-banner"')
-        ->toContain('WIREFAKE');
+        ->toContain('id="fakeable-banner"')
+        ->toContain('FAKEABLE');
 });
 
 it('does not inject banner when show_indicator is false', function () {
@@ -180,7 +180,7 @@ it('does not inject banner when show_indicator is false', function () {
     $html = '<html><body><div>content</div></body></html>';
     $response = new Response($html);
 
-    $middleware = new InjectWireFakeBanner;
+    $middleware = new InjectFakeableBanner;
     $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->getContent())->not->toContain('wirefake-banner');
@@ -192,7 +192,7 @@ it('does not inject banner when guard fails', function () {
     $html = '<html><body><div>content</div></body></html>';
     $response = new Response($html);
 
-    $middleware = new InjectWireFakeBanner;
+    $middleware = new InjectFakeableBanner;
     $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->getContent())->not->toContain('wirefake-banner');
@@ -202,7 +202,7 @@ it('does not inject banner when response has no body tag', function () {
     $html = '<div>partial content</div>';
     $response = new Response($html);
 
-    $middleware = new InjectWireFakeBanner;
+    $middleware = new InjectFakeableBanner;
     $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->getContent())->toBe($html);
@@ -212,7 +212,7 @@ it('does not corrupt JSON responses', function () {
     $json = '{"name":"Tom","email":"tom@example.com"}';
     $response = new Response($json, 200, ['Content-Type' => 'application/json']);
 
-    $middleware = new InjectWireFakeBanner;
+    $middleware = new InjectFakeableBanner;
     $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->getContent())->toBe($json);
@@ -221,7 +221,7 @@ it('does not corrupt JSON responses', function () {
 it('does not corrupt empty responses', function () {
     $response = new Response('', 204);
 
-    $middleware = new InjectWireFakeBanner;
+    $middleware = new InjectFakeableBanner;
     $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->getContent())->toBe('');
@@ -230,7 +230,7 @@ it('does not corrupt empty responses', function () {
 it('handles redirect responses without error', function () {
     $response = new RedirectResponse('http://localhost/dashboard');
 
-    $middleware = new InjectWireFakeBanner;
+    $middleware = new InjectFakeableBanner;
     $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->isRedirection())->toBeTrue();
@@ -240,8 +240,20 @@ it('does not inject banner into response with binary-like content', function () 
     $binary = random_bytes(64);
     $response = new Response($binary, 200, ['Content-Type' => 'application/octet-stream']);
 
-    $middleware = new InjectWireFakeBanner;
+    $middleware = new InjectFakeableBanner;
     $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->getContent())->toBe($binary);
+});
+
+it('handles streamed response where getContent returns false', function () {
+    $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () {
+        echo '<html><body>streamed</body></html>';
+    });
+
+    $middleware = new InjectFakeableBanner;
+    $result = $middleware->handle(new Request, fn () => $response);
+
+    expect($result)->toBeInstanceOf(\Symfony\Component\HttpFoundation\StreamedResponse::class)
+        ->and($result->getContent())->toBeFalse();
 });

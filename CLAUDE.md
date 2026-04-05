@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-WireFake is a Laravel package for Livewire 4 that auto-fills component state with realistic fake data during local development. Developers annotate public properties with `#[Fakeable]` attributes, and the package fills null/empty properties with Faker-generated data after component mount — only in safe conditions (local env, allowed hosts).
+Livewire Fakeable is a Laravel package for Livewire 4 that auto-fills component state with realistic fake data during local development. Developers annotate public properties with `#[Fakeable]` attributes, and the package fills null/empty properties with Faker-generated data after component mount — only in safe conditions (local env, allowed hosts).
 
 ## Commands
 
@@ -26,7 +26,7 @@ The package hooks into Livewire's component lifecycle:
 3. **FakeableResolver** (`src/Services/FakeableResolver.php`) — Uses PHP reflection to find `#[Fakeable]` attributes on classes and properties, then generates values via Faker or state classes.
 4. **Fakeable attribute** (`src/Attributes/Fakeable.php`) — Can be applied at class or property level. Accepts formatter name, optional seed, and formatter args. Can reference a state class instead of a Faker formatter.
 5. **HasFakeable trait** (`src/Concerns/HasFakeable.php`) — Optional trait for manual `fakeable()` invocation from `mount()`.
-6. **WireFakeServiceProvider** (`src/Providers/WireFakeServiceProvider.php`) — Extends Spatie's `PackageServiceProvider`, registers config and Livewire hook.
+6. **LivewireFakeableServiceProvider** (`src/Providers/LivewireFakeableServiceProvider.php`) — Extends Spatie's `PackageServiceProvider`, registers config and Livewire hook.
 
 ## Boost Guidelines
 
@@ -35,7 +35,7 @@ When adding or changing features, update `resources/boost/guidelines/core.blade.
 ## Testing
 
 - Uses Pest 4 with `orchestra/testbench` for Laravel package testing
-- `tests/TestCase.php` registers both `LivewireServiceProvider` and `WireFakeServiceProvider`
+- `tests/TestCase.php` registers both `LivewireServiceProvider` and `LivewireFakeableServiceProvider`
 - `tests/Features/` — Integration tests (component behavior)
 - `tests/Unit/` — Unit tests (services)
 - `tests/ArchTest.php` — Architecture checks (no `dd`, `dump`, `ray`)

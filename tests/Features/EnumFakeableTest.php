@@ -2,7 +2,7 @@
 
 use Livewire\Component;
 use Livewire\Livewire;
-use TomEasterbrook\WireFake\Attributes\Fakeable;
+use TomEasterbrook\LivewireFakeable\Attributes\Fakeable;
 
 // --- Enum fixtures ---
 

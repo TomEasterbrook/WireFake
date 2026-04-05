@@ -1,5 +1,5 @@
 <?php
 
-use TomEasterbrook\WireFake\Tests\TestCase;
+use TomEasterbrook\LivewireFakeable\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);

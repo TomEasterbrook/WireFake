@@ -1,14 +1,14 @@
 {
-    "name": "tomeasterbrook/wire-fake",
-    "description": "Fill your single-page component state with realistic fake data during local development.",
+    "name": "tomeasterbrook/livewire-fakeable",
+    "description": "Fill your Livewire component state with realistic fake data during local development.",
     "keywords": [
         "laravel",
         "livewire",
         "faker",
-        "wire-fake",
+        "livewire-fakeable",
         "fakeable"
     ],
-    "homepage": "https://github.com/TomEasterbrook/WireFake",
+    "homepage": "https://github.com/TomEasterbrook/livewire-fakeable",
     "license": "MIT",
     "authors": [
         {
@@ -38,12 +38,12 @@
     },
     "autoload": {
         "psr-4": {
-            "TomEasterbrook\\WireFake\\": "src/"
+            "TomEasterbrook\\LivewireFakeable\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "TomEasterbrook\\WireFake\\Tests\\": "tests/",
+            "TomEasterbrook\\LivewireFakeable\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -65,10 +65,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "TomEasterbrook\\WireFake\\Providers\\WireFakeServiceProvider"
+                "TomEasterbrook\\LivewireFakeable\\Providers\\LivewireFakeableServiceProvider"
             ],
             "aliases": {
-                "WireFake": "TomEasterbrook\\WireFake\\Facades\\WireFake"
+                "LivewireFakeable": "TomEasterbrook\\LivewireFakeable\\Facades\\LivewireFakeable"
             }
         }
     },

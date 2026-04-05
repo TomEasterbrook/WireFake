@@ -1,6 +1,6 @@
 <?php
 
-namespace TomEasterbrook\WireFake\Services;
+namespace TomEasterbrook\LivewireFakeable\Services;
 
 use Faker\Factory;
 use Faker\Generator;
@@ -9,7 +9,7 @@ use Livewire\Form;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
-use TomEasterbrook\WireFake\Attributes\Fakeable;
+use TomEasterbrook\LivewireFakeable\Attributes\Fakeable;
 
 class FakeableResolver
 {
@@ -63,7 +63,21 @@ class FakeableResolver
     {
         $reflection = new ReflectionClass($component);
         $faker = $this->createFaker(null);
-        $state = (new $stateClass)($faker);
+
+        try {
+            $state = (new $stateClass)($faker);
+        } catch (\Throwable $e) {
+            report(new \RuntimeException("Fakeable: state class \"{$stateClass}\" threw an exception: {$e->getMessage()}", 0, $e));
+
+            return [];
+        }
+
+        if (! is_iterable($state)) {
+            report(new \RuntimeException("Fakeable: state class \"{$stateClass}\" must return an iterable, got ".get_debug_type($state)));
+
+            return [];
+        }
+
         $resolved = [];
 
         foreach ($state as $propertyName => $value) {
@@ -97,7 +111,20 @@ class FakeableResolver
             $fakeable = $attribute->newInstance();
             $stateClass = $fakeable->formatter;
             $faker = $this->createFaker($fakeable->seed);
-            $state = (new $stateClass)($faker);
+
+            try {
+                $state = (new $stateClass)($faker);
+            } catch (\Throwable $e) {
+                report(new \RuntimeException("Fakeable: state class \"{$stateClass}\" threw an exception: {$e->getMessage()}", 0, $e));
+
+                continue;
+            }
+
+            if (! is_iterable($state)) {
+                report(new \RuntimeException("Fakeable: state class \"{$stateClass}\" must return an iterable, got ".get_debug_type($state)));
+
+                continue;
+            }
 
             foreach ($state as $propertyName => $value) {
                 if (! $reflection->hasProperty($propertyName)) {
@@ -164,7 +191,7 @@ class FakeableResolver
                 }
             } catch (InvalidArgumentException) {
                 $formatter = is_array($fakeable->formatter) ? json_encode($fakeable->formatter) : $fakeable->formatter;
-                report(new InvalidArgumentException("WireFake: unknown Faker formatter \"{$formatter}\" on property \${$property->getName()}"));
+                report(new InvalidArgumentException("Fakeable: unknown Faker formatter \"{$formatter}\" on property \${$property->getName()}"));
             }
         }
 

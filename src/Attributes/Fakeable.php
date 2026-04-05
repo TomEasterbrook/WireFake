@@ -1,6 +1,6 @@
 <?php
 
-namespace TomEasterbrook\WireFake\Attributes;
+namespace TomEasterbrook\LivewireFakeable\Attributes;
 
 use Attribute;
 

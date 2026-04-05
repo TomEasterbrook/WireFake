@@ -1,10 +1,10 @@
 <?php
 
-namespace TomEasterbrook\WireFake\Tests;
+namespace TomEasterbrook\LivewireFakeable\Tests;
 
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use TomEasterbrook\WireFake\Providers\WireFakeServiceProvider;
+use TomEasterbrook\LivewireFakeable\Providers\LivewireFakeableServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -12,7 +12,7 @@ class TestCase extends Orchestra
     {
         return [
             LivewireServiceProvider::class,
-            WireFakeServiceProvider::class,
+            LivewireFakeableServiceProvider::class,
         ];
     }
 

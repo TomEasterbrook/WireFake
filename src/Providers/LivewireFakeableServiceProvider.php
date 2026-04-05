@@ -1,20 +1,20 @@
 <?php
 
-namespace TomEasterbrook\WireFake\Providers;
+namespace TomEasterbrook\LivewireFakeable\Providers;
 
 use Illuminate\Contracts\Http\Kernel;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use TomEasterbrook\WireFake\Http\Middleware\InjectWireFakeBanner;
-use TomEasterbrook\WireFake\Livewire\Hooks\FakeableBanner;
+use TomEasterbrook\LivewireFakeable\Http\Middleware\InjectFakeableBanner;
+use TomEasterbrook\LivewireFakeable\Livewire\Hooks\FakeableBanner;
 
-class WireFakeServiceProvider extends PackageServiceProvider
+class LivewireFakeableServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('wire-fake')
+            ->name('livewire-fakeable')
             ->hasConfigFile('fakeable')
             ->hasViews();
     }
@@ -24,7 +24,7 @@ class WireFakeServiceProvider extends PackageServiceProvider
         Livewire::componentHook(FakeableBanner::class);
 
         if ($this->app->environment('local')) {
-            $this->app->make(Kernel::class)->pushMiddleware(InjectWireFakeBanner::class);
+            $this->app->make(Kernel::class)->pushMiddleware(InjectFakeableBanner::class);
         }
     }
 }

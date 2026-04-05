@@ -1,7 +1,7 @@
 <?php
 
-use TomEasterbrook\WireFake\Attributes\Fakeable;
-use TomEasterbrook\WireFake\Services\FakeableResolver;
+use TomEasterbrook\LivewireFakeable\Attributes\Fakeable;
+use TomEasterbrook\LivewireFakeable\Services\FakeableResolver;
 
 beforeEach(function () {
     config()->set('fakeable.locale', 'en_US');
@@ -248,6 +248,18 @@ it('uses the configured locale', function () {
     // Verify it returns a value (locale was applied without error)
     expect($result)->toHaveKey('name')
         ->and($result['name'])->toBeString()->not->toBeEmpty();
+});
+
+it('skips property and reports when formatter is an empty string', function () {
+    $component = new class
+    {
+        #[Fakeable('')]
+        public ?string $name = null;
+    };
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->not->toHaveKey('name');
 });
 
 it('skips protected properties', function () {

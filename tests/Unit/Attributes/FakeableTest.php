@@ -1,6 +1,6 @@
 <?php
 
-use TomEasterbrook\WireFake\Attributes\Fakeable;
+use TomEasterbrook\LivewireFakeable\Attributes\Fakeable;
 
 it('can be instantiated with just a formatter', function () {
     $fakeable = new Fakeable('name');

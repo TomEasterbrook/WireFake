@@ -3,14 +3,14 @@
 use Faker\Generator;
 use Livewire\Component;
 use Livewire\Livewire;
-use TomEasterbrook\WireFake\Attributes\Fakeable;
-use TomEasterbrook\WireFake\Services\FakeableResolver;
+use TomEasterbrook\LivewireFakeable\Attributes\Fakeable;
+use TomEasterbrook\LivewireFakeable\Services\FakeableResolver;
 
 /**
  * Invokable state class for class-level #[Fakeable] on anonymous components.
  * PHP attributes cannot reference anonymous invokable classes.
  */
-class InlineWireFakeState
+class InlineFakeableState
 {
     public function __invoke(Generator $faker): array
     {
@@ -50,7 +50,7 @@ it('fills property-level Fakeable attributes on an anonymous Livewire component'
 });
 
 it('fills class-level Fakeable on an anonymous Livewire component', function () {
-    $instance = new #[Fakeable(InlineWireFakeState::class)] class extends Component
+    $instance = new #[Fakeable(InlineFakeableState::class)] class extends Component
     {
         public ?string $alpha = null;
 
@@ -68,7 +68,7 @@ it('fills class-level Fakeable on an anonymous Livewire component', function () 
 });
 
 it('fills class-level and property-level Fakeable on one anonymous component', function () {
-    $instance = new #[Fakeable(InlineWireFakeState::class)] class extends Component
+    $instance = new #[Fakeable(InlineFakeableState::class)] class extends Component
     {
         public ?string $alpha = null;
 
@@ -90,7 +90,7 @@ it('fills class-level and property-level Fakeable on one anonymous component', f
 });
 
 it('resolves Fakeable for anonymous component instances via FakeableResolver', function () {
-    $component = new #[Fakeable(InlineWireFakeState::class)] class extends Component
+    $component = new #[Fakeable(InlineFakeableState::class)] class extends Component
     {
         public ?string $alpha = null;
 

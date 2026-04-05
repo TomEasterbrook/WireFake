@@ -1,7 +1,7 @@
 <?php
 
-use TomEasterbrook\WireFake\Attributes\Fakeable;
-use TomEasterbrook\WireFake\Services\FakeableResolver;
+use TomEasterbrook\LivewireFakeable\Attributes\Fakeable;
+use TomEasterbrook\LivewireFakeable\Services\FakeableResolver;
 
 beforeEach(function () {
     config()->set('fakeable.locale', 'en_US');

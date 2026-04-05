@@ -1,10 +1,10 @@
 <?php
 
-namespace TomEasterbrook\WireFake\Livewire\Hooks;
+namespace TomEasterbrook\LivewireFakeable\Livewire\Hooks;
 
 use Livewire\ComponentHook;
-use TomEasterbrook\WireFake\Services\FakeableGuard;
-use TomEasterbrook\WireFake\Services\FakeableResolver;
+use TomEasterbrook\LivewireFakeable\Services\FakeableGuard;
+use TomEasterbrook\LivewireFakeable\Services\FakeableResolver;
 
 use function Livewire\after;
 

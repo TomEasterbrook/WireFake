@@ -1,9 +1,9 @@
 <?php
 
-namespace TomEasterbrook\WireFake\Concerns;
+namespace TomEasterbrook\LivewireFakeable\Concerns;
 
-use TomEasterbrook\WireFake\Services\FakeableGuard;
-use TomEasterbrook\WireFake\Services\FakeableResolver;
+use TomEasterbrook\LivewireFakeable\Services\FakeableGuard;
+use TomEasterbrook\LivewireFakeable\Services\FakeableResolver;
 
 trait HasFakeable
 {

@@ -1,9 +1,9 @@
 <?php
 
 use Faker\Generator;
-use TomEasterbrook\WireFake\Attributes\Fakeable;
-use TomEasterbrook\WireFake\Concerns\HasFakeable;
-use TomEasterbrook\WireFake\Services\FakeableResolver;
+use TomEasterbrook\LivewireFakeable\Attributes\Fakeable;
+use TomEasterbrook\LivewireFakeable\Concerns\HasFakeable;
+use TomEasterbrook\LivewireFakeable\Services\FakeableResolver;
 
 beforeEach(function () {
     config()->set('fakeable.locale', 'en_US');
@@ -58,6 +58,22 @@ class ReceiverState
         static::$received = $faker;
 
         return ['name' => $faker->name()];
+    }
+}
+
+class ThrowingState
+{
+    public function __invoke(Generator $faker): array
+    {
+        throw new \RuntimeException('Something broke');
+    }
+}
+
+class NonIterableState
+{
+    public function __invoke(Generator $faker): string
+    {
+        return 'not an array';
     }
 }
 
@@ -117,6 +133,18 @@ class ClassAndPropertyOverlapComponent
     public ?string $name = null;
 
     public ?string $email = null;
+}
+
+#[Fakeable(ThrowingState::class)]
+class ThrowingStateComponent
+{
+    public ?string $name = null;
+}
+
+#[Fakeable(NonIterableState::class)]
+class NonIterableStateComponent
+{
+    public ?string $name = null;
 }
 
 #[Fakeable(ReferencesState::class)]
@@ -297,4 +325,62 @@ it('does not overwrite non-empty array properties', function () {
     $result = (new FakeableResolver)->resolve($component);
 
     expect($result)->not->toHaveKey('references');
+});
+
+// --- Error handling tests ---
+
+it('reports and skips when class-level state class throws an exception', function () {
+    $component = new ThrowingStateComponent;
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->toBeEmpty();
+});
+
+it('reports and skips when class-level state class returns non-iterable', function () {
+    $component = new NonIterableStateComponent;
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->toBeEmpty();
+});
+
+it('reports and returns empty when resolveStateClass state class throws', function () {
+    $component = new class
+    {
+        public ?string $name = null;
+    };
+
+    $result = (new FakeableResolver)->resolveStateClass($component, ThrowingState::class);
+
+    expect($result)->toBeEmpty();
+});
+
+it('reports and returns empty when resolveStateClass state class returns non-iterable', function () {
+    $component = new class
+    {
+        public ?string $name = null;
+    };
+
+    $result = (new FakeableResolver)->resolveStateClass($component, NonIterableState::class);
+
+    expect($result)->toBeEmpty();
+});
+
+it('fakeable() method does nothing when guard fails', function () {
+    config()->set('fakeable.enabled', false);
+
+    $component = new class
+    {
+        use HasFakeable;
+
+        public ?string $name = null;
+
+        public ?string $email = null;
+    };
+
+    $component->fakeable(NameAndEmailState::class);
+
+    expect($component->name)->toBeNull()
+        ->and($component->email)->toBeNull();
 });
