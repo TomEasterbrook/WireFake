@@ -1,6 +1,7 @@
 <?php
 
 use Faker\Generator;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Livewire\Component;
@@ -227,7 +228,7 @@ it('does not corrupt empty responses', function () {
 });
 
 it('handles redirect responses without error', function () {
-    $response = new \Illuminate\Http\RedirectResponse('http://localhost/dashboard');
+    $response = new RedirectResponse('http://localhost/dashboard');
 
     $middleware = new InjectWireFakeBanner;
     $result = $middleware->handle(new Request, fn () => $response);
