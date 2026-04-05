@@ -206,3 +206,41 @@ it('does not inject banner when response has no body tag', function () {
 
     expect($result->getContent())->toBe($html);
 });
+
+it('does not corrupt JSON responses', function () {
+    $json = '{"name":"Tom","email":"tom@example.com"}';
+    $response = new Response($json, 200, ['Content-Type' => 'application/json']);
+
+    $middleware = new InjectWireFakeBanner;
+    $result = $middleware->handle(new Request, fn () => $response);
+
+    expect($result->getContent())->toBe($json);
+});
+
+it('does not corrupt empty responses', function () {
+    $response = new Response('', 204);
+
+    $middleware = new InjectWireFakeBanner;
+    $result = $middleware->handle(new Request, fn () => $response);
+
+    expect($result->getContent())->toBe('');
+});
+
+it('handles redirect responses without error', function () {
+    $response = new \Illuminate\Http\RedirectResponse('http://localhost/dashboard');
+
+    $middleware = new InjectWireFakeBanner;
+    $result = $middleware->handle(new Request, fn () => $response);
+
+    expect($result->isRedirection())->toBeTrue();
+});
+
+it('does not inject banner into response with binary-like content', function () {
+    $binary = random_bytes(64);
+    $response = new Response($binary, 200, ['Content-Type' => 'application/octet-stream']);
+
+    $middleware = new InjectWireFakeBanner;
+    $result = $middleware->handle(new Request, fn () => $response);
+
+    expect($result->getContent())->toBe($binary);
+});

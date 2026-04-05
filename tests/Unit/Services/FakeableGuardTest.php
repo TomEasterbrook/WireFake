@@ -71,3 +71,30 @@ it('returns false when multiple conditions fail', function () {
 
     expect(createGuard('evil.com')->allowed())->toBeFalse();
 });
+
+it('returns false when allowed hosts list is empty', function () {
+    config()->set('fakeable.allowed_hosts', []);
+
+    expect(createGuard('myapp.test')->allowed())->toBeFalse();
+});
+
+it('ignores empty string patterns in allowed hosts', function () {
+    config()->set('fakeable.allowed_hosts', ['', '  ', 'localhost']);
+
+    expect(createGuard('localhost')->allowed())->toBeTrue()
+        ->and(createGuard('myapp.test')->allowed())->toBeFalse();
+});
+
+it('matches bare wildcard pattern', function () {
+    config()->set('fakeable.allowed_hosts', ['*']);
+
+    expect(createGuard('anything.com')->allowed())->toBeTrue()
+        ->and(createGuard('localhost')->allowed())->toBeTrue();
+});
+
+it('matches host patterns case-insensitively', function () {
+    config()->set('fakeable.allowed_hosts', ['*.TEST']);
+
+    expect(createGuard('myapp.test')->allowed())->toBeTrue()
+        ->and(createGuard('MYAPP.TEST')->allowed())->toBeTrue();
+});

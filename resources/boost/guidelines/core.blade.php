@@ -8,7 +8,7 @@ All must be true: `config('fakeable.enabled')`, `app()->environment('local')`, r
 
 ### Property-level: Faker formatters
 
-Use `TomEasterbrook\WireFake\Attributes\Fakeable` on **public** properties. The first argument is the Faker method name; optional `seed` for stable values; additional arguments are passed to that formatter.
+Use `TomEasterbrook\WireFake\Attributes\Fakeable` on **public** properties. The first argument is the Faker method name; optional `seed` for stable values; additional arguments are passed to that formatter. A bare `#[Fakeable]` (no formatter) will infer the formatter from the property name (e.g. `$email` → `safeEmail`, `$city` → `city`, `$phone` → `phoneNumber`) or fall back to the property type (`string` → `word`, `int` → `randomNumber`, `float` → `randomFloat`, `bool` → `boolean`). Explicit formatters always take precedence.
 
 @verbatim
 <code-snippet name="WireFake property attributes" lang="php">

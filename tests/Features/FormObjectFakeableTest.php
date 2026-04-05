@@ -1,9 +1,23 @@
 <?php
 
+use Faker\Generator;
 use Livewire\Component;
 use Livewire\Form;
 use Livewire\Livewire;
 use TomEasterbrook\WireFake\Attributes\Fakeable;
+
+// --- State class fixtures ---
+
+class FormProfileState
+{
+    public function __invoke(Generator $faker): array
+    {
+        return [
+            'name' => $faker->name(),
+            'email' => $faker->safeEmail(),
+        ];
+    }
+}
 
 // --- Form fixtures ---
 
@@ -31,6 +45,25 @@ class FormWithMountValues extends Form
 
     #[Fakeable('safeEmail')]
     public ?string $email = null;
+}
+
+#[Fakeable(FormProfileState::class)]
+class ClassLevelForm extends Form
+{
+    public ?string $name = null;
+
+    public ?string $email = null;
+}
+
+#[Fakeable(FormProfileState::class)]
+class ClassLevelFormWithPropertyOverride extends Form
+{
+    public ?string $name = null;
+
+    public ?string $email = null;
+
+    #[Fakeable('city')]
+    public ?string $city = null;
 }
 
 // --- Component fixtures ---
@@ -83,6 +116,26 @@ class FormMountComponent extends Component
     }
 }
 
+class ClassLevelFormComponent extends Component
+{
+    public ClassLevelForm $form;
+
+    public function render()
+    {
+        return '<div>{{ $form->name }} {{ $form->email }}</div>';
+    }
+}
+
+class ClassLevelFormWithPropertyOverrideComponent extends Component
+{
+    public ClassLevelFormWithPropertyOverride $form;
+
+    public function render()
+    {
+        return '<div>{{ $form->name }} {{ $form->email }} {{ $form->city }}</div>';
+    }
+}
+
 // --- Tests ---
 
 beforeEach(function () {
@@ -124,4 +177,17 @@ it('does nothing to form objects when guard fails', function () {
     Livewire::test(FormObjectComponent::class)
         ->assertSet('form.name', null)
         ->assertSet('form.email', null);
+});
+
+it('fills form properties via class-level Fakeable state class', function () {
+    Livewire::test(ClassLevelFormComponent::class)
+        ->assertSet('form.name', fn ($value) => is_string($value) && $value !== '')
+        ->assertSet('form.email', fn ($value) => is_string($value) && str_contains($value, '@'));
+});
+
+it('fills form properties via class-level and property-level attributes together', function () {
+    Livewire::test(ClassLevelFormWithPropertyOverrideComponent::class)
+        ->assertSet('form.name', fn ($value) => is_string($value) && $value !== '')
+        ->assertSet('form.email', fn ($value) => is_string($value) && str_contains($value, '@'))
+        ->assertSet('form.city', fn ($value) => is_string($value) && $value !== '');
 });

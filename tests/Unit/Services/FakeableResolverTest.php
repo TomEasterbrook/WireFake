@@ -249,3 +249,35 @@ it('uses the configured locale', function () {
     expect($result)->toHaveKey('name')
         ->and($result['name'])->toBeString()->not->toBeEmpty();
 });
+
+it('skips protected properties', function () {
+    $component = new class
+    {
+        #[Fakeable('name')]
+        protected ?string $name = null;
+
+        #[Fakeable('email')]
+        public ?string $email = null;
+    };
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->toHaveKey('email')
+        ->and($result)->not->toHaveKey('name');
+});
+
+it('skips private properties', function () {
+    $component = new class
+    {
+        #[Fakeable('name')]
+        private ?string $name = null;
+
+        #[Fakeable('email')]
+        public ?string $email = null;
+    };
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->toHaveKey('email')
+        ->and($result)->not->toHaveKey('name');
+});

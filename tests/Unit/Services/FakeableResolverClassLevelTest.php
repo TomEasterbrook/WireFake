@@ -197,6 +197,34 @@ it('class-level values are not overridden by property-level', function () {
     expect($result)->toHaveKeys(['name', 'email']);
 });
 
+it('skips protected properties from state class', function () {
+    $component = new class
+    {
+        public ?string $name = null;
+
+        protected ?string $email = null;
+    };
+
+    $result = (new FakeableResolver)->resolveStateClass($component, NameAndEmailState::class);
+
+    expect($result)->toHaveKey('name')
+        ->and($result)->not->toHaveKey('email');
+});
+
+it('skips private properties from state class', function () {
+    $component = new class
+    {
+        public ?string $name = null;
+
+        private ?string $email = null;
+    };
+
+    $result = (new FakeableResolver)->resolveStateClass($component, NameAndEmailState::class);
+
+    expect($result)->toHaveKey('name')
+        ->and($result)->not->toHaveKey('email');
+});
+
 // --- HasFakeable trait tests ---
 
 it('provides fakeable() method via HasFakeable trait', function () {

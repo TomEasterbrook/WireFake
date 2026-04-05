@@ -6,3 +6,6 @@ parameters:
         -
             message: "#Trait TomEasterbrook\\\\WireFake\\\\Concerns\\\\HasFakeable is used zero times and is not analysed#"
             path: src/Concerns/HasFakeable.php
+        -
+            message: "#Call to an undefined method Faker\\\\Generator::state\\(\\)#"
+            path: src/Services/FakeableResolver.php

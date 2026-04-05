@@ -146,10 +146,11 @@ class FakeableResolver
             $faker = $this->createFaker($fakeable->seed);
 
             if ($fakeable->formatter === null) {
-                $enumValue = $this->resolveEnum($property, $faker);
+                $inferred = $this->resolveEnum($property, $faker)
+                    ?? $this->inferFromProperty($property, $faker);
 
-                if ($enumValue !== null) {
-                    $fakeValues[$property->getName()] = $enumValue;
+                if ($inferred !== null) {
+                    $fakeValues[$property->getName()] = $inferred;
                 }
 
                 continue;
@@ -191,6 +192,67 @@ class FakeableResolver
         }
 
         return $faker->randomElement($cases);
+    }
+
+    protected const NAME_MAP = [
+        'name' => 'name',
+        'fullName' => 'name',
+        'full_name' => 'name',
+        'firstName' => 'firstName',
+        'first_name' => 'firstName',
+        'lastName' => 'lastName',
+        'last_name' => 'lastName',
+        'email' => 'safeEmail',
+        'emailAddress' => 'safeEmail',
+        'email_address' => 'safeEmail',
+        'phone' => 'phoneNumber',
+        'phoneNumber' => 'phoneNumber',
+        'phone_number' => 'phoneNumber',
+        'address' => 'address',
+        'street' => 'streetAddress',
+        'streetAddress' => 'streetAddress',
+        'street_address' => 'streetAddress',
+        'city' => 'city',
+        'state' => 'state',
+        'country' => 'country',
+        'postcode' => 'postcode',
+        'zipCode' => 'postcode',
+        'zip_code' => 'postcode',
+        'company' => 'company',
+        'companyName' => 'company',
+        'company_name' => 'company',
+        'title' => 'sentence',
+        'description' => 'paragraph',
+        'summary' => 'sentence',
+        'bio' => 'paragraph',
+        'url' => 'url',
+        'website' => 'url',
+        'username' => 'userName',
+        'user_name' => 'userName',
+    ];
+
+    protected const TYPE_MAP = [
+        'string' => 'word',
+        'int' => 'randomNumber',
+        'float' => 'randomFloat',
+        'bool' => 'boolean',
+    ];
+
+    protected function inferFromProperty(ReflectionProperty $property, Generator $faker): mixed
+    {
+        $name = $property->getName();
+
+        if (isset(self::NAME_MAP[$name])) {
+            return $faker->{self::NAME_MAP[$name]}();
+        }
+
+        $type = $property->getType();
+
+        if ($type instanceof ReflectionNamedType && $type->isBuiltin() && isset(self::TYPE_MAP[$type->getName()])) {
+            return $faker->{self::TYPE_MAP[$type->getName()]}();
+        }
+
+        return null;
     }
 
     protected function resolveArrayShape(Generator $faker, array $shape, int $count): array

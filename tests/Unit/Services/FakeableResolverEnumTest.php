@@ -83,7 +83,7 @@ it('skips enum property that already has a value', function () {
     expect($result)->not->toHaveKey('status');
 });
 
-it('does not resolve bare Fakeable on a non-enum property', function () {
+it('infers bare Fakeable on a string property with a known name', function () {
     $component = new class
     {
         #[Fakeable]
@@ -92,7 +92,8 @@ it('does not resolve bare Fakeable on a non-enum property', function () {
 
     $result = (new FakeableResolver)->resolve($component);
 
-    expect($result)->not->toHaveKey('name');
+    expect($result)->toHaveKey('name')
+        ->and($result['name'])->toBeString()->not->toBeEmpty();
 });
 
 it('mixes enum and formatter properties', function () {
@@ -124,4 +125,55 @@ it('produces deterministic enum with seed', function () {
     $result2 = (new FakeableResolver)->resolve($make());
 
     expect($result1['colour'])->toBe($result2['colour']);
+});
+
+it('infers bare Fakeable on an int property via type', function () {
+    $component = new class
+    {
+        #[Fakeable]
+        public ?int $count = null;
+    };
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->toHaveKey('count')
+        ->and($result['count'])->toBeInt();
+});
+
+it('infers bare Fakeable on a bool property via type', function () {
+    $component = new class
+    {
+        #[Fakeable]
+        public ?bool $active = null;
+    };
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->toHaveKey('active')
+        ->and($result['active'])->toBeBool();
+});
+
+it('infers bare Fakeable on a float property via type', function () {
+    $component = new class
+    {
+        #[Fakeable]
+        public ?float $amount = null;
+    };
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->toHaveKey('amount')
+        ->and($result['amount'])->toBeFloat();
+});
+
+it('does not resolve bare Fakeable on a non-enum class-typed property', function () {
+    $component = new class
+    {
+        #[Fakeable]
+        public ?stdClass $data = null;
+    };
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->not->toHaveKey('data');
 });
