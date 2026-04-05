@@ -1,6 +1,8 @@
 <?php
 
 use Faker\Generator;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Livewire\Component;
 use Livewire\Livewire;
 use TomEasterbrook\WireFake\Attributes\Fakeable;
@@ -161,10 +163,10 @@ it('leaves components without Fakeable attributes unchanged', function () {
 
 it('injects banner when show_indicator is true and guard passes', function () {
     $html = '<html><body><div>content</div></body></html>';
-    $response = new \Illuminate\Http\Response($html);
+    $response = new Response($html);
 
     $middleware = new InjectWireFakeBanner;
-    $result = $middleware->handle(new \Illuminate\Http\Request, fn () => $response);
+    $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->getContent())
         ->toContain('id="wirefake-banner"')
@@ -175,10 +177,10 @@ it('does not inject banner when show_indicator is false', function () {
     config()->set('fakeable.show_indicator', false);
 
     $html = '<html><body><div>content</div></body></html>';
-    $response = new \Illuminate\Http\Response($html);
+    $response = new Response($html);
 
     $middleware = new InjectWireFakeBanner;
-    $result = $middleware->handle(new \Illuminate\Http\Request, fn () => $response);
+    $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->getContent())->not->toContain('wirefake-banner');
 });
@@ -187,20 +189,20 @@ it('does not inject banner when guard fails', function () {
     config()->set('fakeable.enabled', false);
 
     $html = '<html><body><div>content</div></body></html>';
-    $response = new \Illuminate\Http\Response($html);
+    $response = new Response($html);
 
     $middleware = new InjectWireFakeBanner;
-    $result = $middleware->handle(new \Illuminate\Http\Request, fn () => $response);
+    $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->getContent())->not->toContain('wirefake-banner');
 });
 
 it('does not inject banner when response has no body tag', function () {
     $html = '<div>partial content</div>';
-    $response = new \Illuminate\Http\Response($html);
+    $response = new Response($html);
 
     $middleware = new InjectWireFakeBanner;
-    $result = $middleware->handle(new \Illuminate\Http\Request, fn () => $response);
+    $result = $middleware->handle(new Request, fn () => $response);
 
     expect($result->getContent())->toBe($html);
 });
