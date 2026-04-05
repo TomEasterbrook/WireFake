@@ -5,6 +5,7 @@ namespace TomEasterbrook\WireFake\Livewire\Hooks;
 use Livewire\ComponentHook;
 use TomEasterbrook\WireFake\Services\FakeableGuard;
 use TomEasterbrook\WireFake\Services\FakeableResolver;
+
 use function Livewire\after;
 
 class FakeableBanner extends ComponentHook
