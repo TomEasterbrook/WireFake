@@ -63,7 +63,7 @@ class FakeableBanner extends ComponentHook
 
     public static function indicatorHtml(): string
     {
-        return '<div id="wirefake-indicator" style="position:fixed;bottom:4px;right:4px;background:#f59e0b;color:#000;padding:2px 8px;border-radius:4px;font-size:12px;font-family:sans-serif;z-index:9999;pointer-events:none;opacity:0.9;">WireFake</div>';
+        return '<div id="wirefake-indicator" style="position:fixed;top:0;left:0;right:0;background:#f59e0b;color:#000;padding:6px 12px;font-size:13px;font-family:sans-serif;z-index:9999;text-align:center;pointer-events:none;opacity:0.95;">WireFake is active — component data has been filled with fake values</div>';
     }
 
     public static function resetIndicator(): void
