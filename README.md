@@ -1,56 +1,38 @@
 # WireFake
 
 <p align="center">
-  <a href="https://packagist.org/packages/tomeasterbrook/wire-fake"><img src="https://img.shields.io/packagist/v/tomeasterbrook/wire-fake?style=for-the-badge" alt="Packagist version"></a>
-  <a href="LICENSE.md"><img src="https://img.shields.io/packagist/l/tomeasterbrook/wire-fake?style=for-the-badge" alt="License MIT"></a>
-  <img src="https://img.shields.io/badge/PHP-8.1%2B-777bb4?style=for-the-badge" alt="PHP 8.1+">
-  <img src="https://img.shields.io/badge/Livewire-4-fb70a9?style=for-the-badge" alt="Livewire 4">
+    <a href="https://github.com/TomEasterbrook/WireFake/actions"><img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/TomEasterbrook/WireFake/run-tests.yml?branch=main&label=tests&style=flat-square"></a>
+    <a href="https://packagist.org/packages/tomeasterbrook/wire-fake"><img alt="Total Downloads" src="https://img.shields.io/packagist/dt/tomeasterbrook/wire-fake?style=flat-square"></a>
+    <a href="https://packagist.org/packages/tomeasterbrook/wire-fake"><img alt="Latest Version" src="https://img.shields.io/packagist/v/tomeasterbrook/wire-fake?style=flat-square"></a>
+    <a href="LICENSE.md"><img alt="License" src="https://img.shields.io/packagist/l/tomeasterbrook/wire-fake?style=flat-square"></a>
 </p>
 
-<p align="center"><strong>Fake data on your Livewire components — one attribute away. Local only. Never overwrites real <code>mount()</code> data.</strong></p>
+------
 
----
+> **Livewire 4.** Fill empty component state with [Faker](https://fakerphp.org/formatters/) while you build — after `mount`, only on your machine, never overwriting values you already set.
 
-| | |
-| :--- | :--- |
-| **Does** | After `mount`, fills empty public properties from [Faker](https://fakerphp.org/formatters/) via `#[Fakeable]` or a small state class |
-| **Doesn’t** | Run outside `local`, on disallowed hosts, without Faker, or in tests — [details](#safety) below |
+**WireFake** is a focused Laravel package with a simple idea: declare fake data next to your Livewire properties, and let a component hook apply it when it is safe. No seeding scripts scattered across `mount()` methods, and no guessing whether you are looking at real or dummy data.
+
+- Install from **[packagist.org/packages/tomeasterbrook/wire-fake »](https://packagist.org/packages/tomeasterbrook/wire-fake)**
+- Report issues on **[github.com/TomEasterbrook/WireFake »](https://github.com/TomEasterbrook/WireFake/issues)**
+
+## Installation
 
 ```bash
 composer require tomeasterbrook/wire-fake
 ```
 
-```php
-use Livewire\Component;
-use TomEasterbrook\WireFake\Attributes\Fakeable;
-
-class EditProfilePage extends Component
-{
-    #[Fakeable('name')]
-    public string $name = '';
-
-    #[Fakeable('safeEmail')]
-    public string $email = '';
-}
-```
-
----
-
-## Install
-
-Auto-discovery is on. Optional config:
+The service provider is discovered automatically. Publish the config if you want to change locale, hosts, or the on-page indicator:
 
 ```bash
 php artisan vendor:publish --tag="wire-fake-config"
 ```
 
-**Requires:** PHP 8.1+, Laravel 10–13, `livewire/livewire:^4.0` (pulled in by this package).
-
----
+Requires **PHP 8.1+**, **Laravel 10–13**, and **Livewire 4** (`livewire/livewire:^4.0` is required by this package).
 
 ## Usage
 
-### Properties
+Annotate public properties with `#[Fakeable]` and a [Faker formatter](https://fakerphp.org/formatters/) name. WireFake runs **after** `mount` and only fills properties that are still `null` or `''`.
 
 ```php
 use Livewire\Component;
@@ -66,29 +48,20 @@ class EditProfilePage extends Component
 
     #[Fakeable('paragraph')]
     public string $bio = '';
-
-    // ...
 }
 ```
 
-Use any [Faker formatter](https://fakerphp.org/formatters/) as the first argument. Extra arguments go to the formatter:
+Pass arguments through to Faker, or fix a seed for stable reloads (screenshots, demos):
 
 ```php
 #[Fakeable('sentence', words: 3)]
 public string $title = '';
 
-#[Fakeable('imageUrl', width: 200, height: 200)]
-public string $avatar_url = '';
-```
-
-Stable values across reloads (screenshots, demos):
-
-```php
 #[Fakeable('name', seed: 42)]
 public string $name = '';
 ```
 
-### Whole component (state class)
+For a whole component, use a state class that returns an array keyed by property name, then reference it on the class:
 
 ```php
 use Faker\Generator;
@@ -100,8 +73,6 @@ class ProfileFormState
         return [
             'name' => $faker->name(),
             'email' => $faker->safeEmail(),
-            'bio' => $faker->paragraph(),
-            'avatar_url' => $faker->imageUrl(200, 200),
         ];
     }
 }
@@ -117,14 +88,10 @@ class EditProfilePage extends Component
 {
     public string $name = '';
     public string $email = '';
-    public string $bio = '';
-    public string $avatar_url = '';
-
-    // ...
 }
 ```
 
-### `fakeable()` helper
+You can also call `fakeable()` from `mount()` with the `HasFakeable` trait, and mix class-level and property-level `#[Fakeable]` as needed.
 
 ```php
 use App\FakerStates\ProfileFormState;
@@ -145,62 +112,13 @@ class EditProfilePage extends Component
 }
 ```
 
-Class-level and property-level `#[Fakeable]` can be mixed.
+**Locale** — set `locale` in `config/fakeable.php` (default `en_US`).
 
-### After `mount` — only empty fields
-
-Runs **after** `mount`. Only `null` or `''` get filled; anything you set in `mount()` stays.
-
-```php
-use App\FakerStates\ProfileFormState;
-use App\Models\User;
-use Livewire\Component;
-use TomEasterbrook\WireFake\Attributes\Fakeable;
-
-#[Fakeable(ProfileFormState::class)]
-class EditProfilePage extends Component
-{
-    public string $name = '';
-    public string $email = '';
-
-    public function mount(User $user): void
-    {
-        $this->name = $user->name; // kept
-        // $this->email still '' → fake filled
-    }
-}
-```
-
-### Locale
-
-```php
-// config/fakeable.php
-'locale' => 'fr_FR', // default en_US
-```
-
-### On-screen badge
-
-When active, a small **WireFake** label is injected so you know data is fake. Toggle:
-
-```php
-// config/fakeable.php
-'show_indicator' => true,
-```
-
----
+**Indicator** — when faking is active, a small **WireFake** label is added to the HTML so you do not confuse local data with production. Disable with `show_indicator` in the same config file.
 
 ## Safety
 
-For **local development** only. Injection runs only if **all** of these pass:
-
-1. `config('fakeable.enabled')` — e.g. `FAKEABLE_ENABLED` in `.env`
-2. `app()->environment('local')`
-3. Request host matches `allowed_hosts` (`*.test`, `*.dev`, `localhost` by default)
-4. `class_exists(Faker\Generator::class)` — add `fakerphp/faker` in dev if needed
-
-Usual `APP_ENV=testing` means not `local`, so tests stay clean.
-
----
+WireFake is for **local development** only. Faking runs only when **all** of the following are true: the package is enabled in config, the app environment is `local`, the request host matches `allowed_hosts`, and `Faker\Generator` exists. Typical `APP_ENV=testing` is not `local`, so tests are unaffected.
 
 ## Configuration
 
@@ -221,8 +139,6 @@ return [
 ];
 ```
 
----
-
 ## Testing
 
 ```bash
@@ -231,15 +147,15 @@ composer test
 
 ## Changelog
 
-[CHANGELOG](CHANGELOG.md)
+Please see [CHANGELOG](CHANGELOG.md).
 
 ## Contributing
 
-[CONTRIBUTING](CONTRIBUTING.md)
+Please see [CONTRIBUTING](CONTRIBUTING.md).
 
 ## Security
 
-[Security policy](../../security/policy)
+Please see [our security policy](../../security/policy).
 
 ## Credits
 
@@ -248,4 +164,4 @@ composer test
 
 ## License
 
-[MIT](LICENSE.md)
+WireFake is open-sourced software licensed under the **[MIT license](https://opensource.org/licenses/MIT)**.
