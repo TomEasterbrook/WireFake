@@ -113,6 +113,45 @@ it('resolves Fakeable for anonymous component instances via FakeableResolver', f
         ->and($resolved['ip'])->toMatch('/^\d{1,3}(\.\d{1,3}){3}$/');
 });
 
+it('fills array properties with empty placeholder structures', function () {
+    $instance = new class extends Component
+    {
+        #[Fakeable(['name' => 'name', 'phone' => 'phoneNumber', 'email' => 'safeEmail'], count: 2)]
+        public array $references = [
+            ['name' => '', 'phone' => '', 'email' => ''],
+            ['name' => '', 'phone' => '', 'email' => ''],
+        ];
+
+        public function render()
+        {
+            return '<div>placeholders</div>';
+        }
+    };
+
+    Livewire::test($instance)
+        ->assertSet('references', fn ($value) => is_array($value)
+            && count($value) === 2
+            && $value[0]['name'] !== ''
+            && str_contains($value[0]['email'], '@')
+        );
+});
+
+it('fills properties using named formatterArguments syntax', function () {
+    $instance = new class extends Component
+    {
+        #[Fakeable('sentence', formatterArguments: [3])]
+        public ?string $title = null;
+
+        public function render()
+        {
+            return '<div>named-args</div>';
+        }
+    };
+
+    Livewire::test($instance)
+        ->assertSet('title', fn ($value) => is_string($value) && $value !== '');
+});
+
 it('does not overwrite mount-assigned public properties on an anonymous component', function () {
     $instance = new class extends Component
     {

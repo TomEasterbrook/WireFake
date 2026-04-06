@@ -1,6 +1,6 @@
 ## Livewire Fakeable (tomeasterbrook/livewire-fakeable)
 
-Livewire Fakeable fills **empty** public Livewire 4 component state with [Faker](https://fakerphp.org/formatters/) during **local** development. It runs **after** `mount` and only sets properties that are still `null`, `''`, or `[]` — it never overwrites real data you assigned in `mount` or elsewhere.
+Livewire Fakeable fills **empty** public Livewire 4 component state with [Faker](https://fakerphp.org/formatters/) during **local** development. It runs **after** `mount` and only sets properties that are still empty — it never overwrites real data you assigned in `mount` or elsewhere. A value is considered empty if it is `null`, `''`, `[]`, or an array whose **every leaf** is one of those (e.g. `[['name' => '', 'phone' => '']]` is empty, but `[['name' => 'Tom', 'phone' => '']]` is not). This means array properties pre-filled with placeholder structures of empty strings will still be replaced with fake data.
 
 ### When faking runs
 
@@ -8,7 +8,7 @@ All must be true: `config('fakeable.enabled')`, `app()->environment('local')`, r
 
 ### Property-level: Faker formatters
 
-Use `TomEasterbrook\LivewireFakeable\Attributes\Fakeable` on **public** properties. The first argument is the Faker method name; optional `seed` for stable values; additional arguments are passed to that formatter. A bare `#[Fakeable]` (no formatter) will infer the formatter from the property name (e.g. `$email` → `safeEmail`, `$city` → `city`, `$phone` → `phoneNumber`) or fall back to the property type (`string` → `word`, `int` → `randomNumber`, `float` → `randomFloat`, `bool` → `boolean`). Explicit formatters always take precedence.
+Use `TomEasterbrook\LivewireFakeable\Attributes\Fakeable` on **public** properties. The first argument is the Faker method name; optional `seed` for stable values. Use the named `formatterArguments` parameter to pass arguments to the Faker formatter cleanly. A bare `#[Fakeable]` (no formatter) will infer the formatter from the property name (e.g. `$email` → `safeEmail`, `$city` → `city`, `$phone` → `phoneNumber`) or fall back to the property type (`string` → `word`, `int` → `randomNumber`, `float` → `randomFloat`, `bool` → `boolean`). Explicit formatters always take precedence.
 
 @verbatim
 <code-snippet name="Livewire Fakeable property attributes" lang="php">
@@ -23,11 +23,22 @@ class EditProfilePage extends Component
     #[Fakeable('safeEmail')]
     public string $email = '';
 
-    #[Fakeable('sentence', words: 3)]
+    // Preferred: use named formatterArguments for formatter parameters
+    #[Fakeable('sentence', formatterArguments: [12])]
     public string $title = '';
+
+    // Alternative: variadic named args also work
+    #[Fakeable('sentence', nbWords: 3)]
+    public string $subtitle = '';
 
     #[Fakeable('name', seed: 42)]
     public string $stableName = '';
+
+    #[Fakeable('boolean', formatterArguments: [100])]
+    public bool $alwaysTrue = false;
+
+    #[Fakeable('randomElement', formatterArguments: [['1 week', '2 weeks', '1 month']])]
+    public string $duration = '';
 }
 </code-snippet>
 @endverbatim
@@ -60,7 +71,7 @@ class ProfileFormState
 
 ### Property-level: array shapes
 
-Pass an array of `key => formatter` pairs to generate structured array data without a state class. Use `count` to control how many rows are generated (defaults to 1).
+Pass an array of `key => formatter` pairs to generate structured array data without a state class. Use `count` to control how many rows are generated (defaults to 1). Arrays pre-filled with empty placeholder structures (where every leaf is `null`, `''`, or `[]`) are treated as empty and will be replaced with fake data.
 
 @verbatim
 <code-snippet name="Livewire Fakeable array shape" lang="php">
@@ -69,8 +80,16 @@ use TomEasterbrook\LivewireFakeable\Attributes\Fakeable;
 
 class ReferencesPage extends Component
 {
+    // Works with empty array default
     #[Fakeable(['name' => 'name', 'phone' => 'phoneNumber', 'email' => 'safeEmail'], count: 2)]
     public array $references = [];
+
+    // Also works with placeholder structures — all leaves are empty strings
+    #[Fakeable(['name' => 'name', 'phone' => 'phoneNumber', 'email' => 'safeEmail'], count: 2)]
+    public array $contacts = [
+        ['name' => '', 'phone' => '', 'email' => ''],
+        ['name' => '', 'phone' => '', 'email' => ''],
+    ];
 
     #[Fakeable(['city' => 'city', 'postcode' => 'postcode'])]
     public array $address = [];

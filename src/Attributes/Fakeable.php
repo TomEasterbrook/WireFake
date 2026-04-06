@@ -13,8 +13,9 @@ class Fakeable
         public string|array|null $formatter = null,
         public ?int $seed = null,
         public int $count = 1,
-        mixed ...$formatterArguments,
+        array $formatterArguments = [],
+        mixed ...$variadicArguments,
     ) {
-        $this->formatterArguments = $formatterArguments;
+        $this->formatterArguments = $formatterArguments !== [] ? $formatterArguments : $variadicArguments;
     }
 }

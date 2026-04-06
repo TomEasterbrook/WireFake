@@ -93,7 +93,7 @@ class FakeableResolver
 
             $currentValue = $property->getValue($component);
 
-            if ($currentValue !== null && $currentValue !== '' && $currentValue !== []) {
+            if (! $this->isEmpty($currentValue)) {
                 continue;
             }
 
@@ -165,7 +165,7 @@ class FakeableResolver
 
             $currentValue = $property->getValue($component);
 
-            if ($currentValue !== null && $currentValue !== '' && $currentValue !== []) {
+            if (! $this->isEmpty($currentValue)) {
                 continue;
             }
 
@@ -297,6 +297,25 @@ class FakeableResolver
         }
 
         return $rows;
+    }
+
+    public function isEmpty(mixed $value): bool
+    {
+        if ($value === null || $value === '' || $value === []) {
+            return true;
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $item) {
+                if (! $this->isEmpty($item)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     protected function createFaker(?int $seed): Generator

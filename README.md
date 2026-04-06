@@ -36,7 +36,7 @@ Requires **PHP 8.1+**, **Laravel 10–13**, and **Livewire 4** (`livewire/livewi
 
 ### Explicit formatters
 
-Annotate public properties with `#[Fakeable]` and a [Faker formatter](https://fakerphp.org/formatters/) name. Livewire Fakeable runs **after** `mount` and only fills properties that are still `null`, `''`, or `[]`.
+Annotate public properties with `#[Fakeable]` and a [Faker formatter](https://fakerphp.org/formatters/) name. Livewire Fakeable runs **after** `mount` and only fills properties that are still empty — `null`, `''`, `[]`, or arrays where every leaf value is one of those (e.g. placeholder structures like `[['name' => '', 'phone' => '']]`).
 
 ```php
 use Livewire\Component;
@@ -55,11 +55,22 @@ class EditProfilePage extends Component
 }
 ```
 
-Pass arguments through to Faker, or fix a seed for stable reloads (screenshots, demos):
+Pass arguments through to Faker using the named `formatterArguments` parameter, or fix a seed for stable reloads (screenshots, demos):
 
 ```php
-#[Fakeable('sentence', nbWords: 3)]
+// Preferred: named formatterArguments
+#[Fakeable('sentence', formatterArguments: [12])]
 public string $title = '';
+
+#[Fakeable('boolean', formatterArguments: [100])]
+public bool $alwaysTrue = false;
+
+#[Fakeable('randomElement', formatterArguments: [['draft', 'published', 'archived']])]
+public string $status = '';
+
+// Alternative: variadic named args still work
+#[Fakeable('sentence', nbWords: 3)]
+public string $subtitle = '';
 
 #[Fakeable('name', seed: 42)]
 public string $name = '';
@@ -145,6 +156,16 @@ This produces an array like:
     ['name' => 'John Smith', 'email' => 'john@example.com'],
     ['name' => 'Alice Brown', 'email' => 'alice@example.com'],
 ]
+```
+
+Arrays pre-filled with empty placeholder structures are also replaced — as long as every leaf value is `null`, `''`, or `[]`:
+
+```php
+#[Fakeable(['name' => 'name', 'phone' => 'phoneNumber', 'email' => 'safeEmail'], count: 2)]
+public array $references = [
+    ['name' => '', 'phone' => '', 'email' => ''],
+    ['name' => '', 'phone' => '', 'email' => ''],
+];
 ```
 
 ### State classes

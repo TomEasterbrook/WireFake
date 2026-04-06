@@ -293,3 +293,68 @@ it('skips private properties', function () {
     expect($result)->toHaveKey('email')
         ->and($result)->not->toHaveKey('name');
 });
+
+it('resolves array properties with empty placeholder structures', function () {
+    $component = new class
+    {
+        #[Fakeable(['name' => 'name', 'phone' => 'phoneNumber', 'email' => 'safeEmail'], count: 2)]
+        public array $references = [
+            ['name' => '', 'phone' => '', 'email' => ''],
+            ['name' => '', 'phone' => '', 'email' => ''],
+        ];
+    };
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->toHaveKey('references')
+        ->and($result['references'])->toBeArray()->toHaveCount(2)
+        ->and($result['references'][0]['name'])->toBeString()->not->toBeEmpty()
+        ->and($result['references'][0]['email'])->toContain('@')
+        ->and($result['references'][1]['name'])->toBeString()->not->toBeEmpty();
+});
+
+it('skips array properties with non-empty placeholder structures', function () {
+    $component = new class
+    {
+        #[Fakeable(['name' => 'name', 'phone' => 'phoneNumber'], count: 1)]
+        public array $references = [
+            ['name' => 'Tom', 'phone' => ''],
+        ];
+    };
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->not->toHaveKey('references');
+});
+
+it('accepts named formatterArguments parameter', function () {
+    $component = new class
+    {
+        #[Fakeable('sentence', formatterArguments: [12])]
+        public ?string $bio = null;
+    };
+
+    $result = (new FakeableResolver)->resolve($component);
+
+    expect($result)->toHaveKey('bio')
+        ->and($result['bio'])->toBeString()->not->toBeEmpty();
+});
+
+it('produces same result with positional and named formatterArguments', function () {
+    $component1 = new class
+    {
+        #[Fakeable('sentence', seed: 42, nbWords: 3)]
+        public ?string $bio = null;
+    };
+
+    $component2 = new class
+    {
+        #[Fakeable('sentence', seed: 42, formatterArguments: ['nbWords' => 3])]
+        public ?string $bio = null;
+    };
+
+    $result1 = (new FakeableResolver)->resolve($component1);
+    $result2 = (new FakeableResolver)->resolve($component2);
+
+    expect($result1['bio'])->toBe($result2['bio']);
+});
