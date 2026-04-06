@@ -8,7 +8,7 @@ All must be true: `config('fakeable.enabled')`, `app()->environment('local')`, r
 
 ### Property-level: Faker formatters
 
-Use `TomEasterbrook\LivewireFakeable\Attributes\Fakeable` on **public** properties. The first argument is the Faker method name; optional `seed` for stable values; additional named arguments are passed through to the Faker formatter. A bare `#[Fakeable]` (no formatter) will infer the formatter from the property name (e.g. `$email` → `safeEmail`, `$city` → `city`, `$phone` → `phoneNumber`) or fall back to the property type (`string` → `word`, `int` → `randomNumber`, `float` → `randomFloat`, `bool` → `boolean`). Explicit formatters always take precedence.
+Use `TomEasterbrook\LivewireFakeable\Attributes\Fakeable` on **public** properties. The first argument is the Faker method name; optional `seed` for stable values. Any additional **named parameters** are passed directly through to the Faker formatter as arguments — use the Faker method's parameter names (e.g. `nbWords`, `chanceOfGettingTrue`, `array`). A bare `#[Fakeable]` (no formatter) will infer the formatter from the property name (e.g. `$email` → `safeEmail`, `$city` → `city`, `$phone` → `phoneNumber`) or fall back to the property type (`string` → `word`, `int` → `randomNumber`, `float` → `randomFloat`, `bool` → `boolean`). Explicit formatters always take precedence.
 
 @verbatim
 <code-snippet name="Livewire Fakeable property attributes" lang="php">
