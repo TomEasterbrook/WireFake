@@ -11,6 +11,11 @@ use TomEasterbrook\LivewireFakeable\Livewire\Hooks\FakeableBanner;
 
 class LivewireFakeableServiceProvider extends PackageServiceProvider
 {
+    protected function getPackageBaseDir(): string
+    {
+        return dirname(__DIR__);
+    }
+
     public function configurePackage(Package $package): void
     {
         $package
