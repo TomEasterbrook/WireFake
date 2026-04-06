@@ -327,10 +327,10 @@ it('skips array properties with non-empty placeholder structures', function () {
     expect($result)->not->toHaveKey('references');
 });
 
-it('accepts named formatterArguments parameter', function () {
+it('passes named formatter arguments via variadic syntax', function () {
     $component = new class
     {
-        #[Fakeable('sentence', formatterArguments: [12])]
+        #[Fakeable('sentence', seed: 42, nbWords: 3)]
         public ?string $bio = null;
     };
 
@@ -338,23 +338,4 @@ it('accepts named formatterArguments parameter', function () {
 
     expect($result)->toHaveKey('bio')
         ->and($result['bio'])->toBeString()->not->toBeEmpty();
-});
-
-it('produces same result with positional and named formatterArguments', function () {
-    $component1 = new class
-    {
-        #[Fakeable('sentence', seed: 42, nbWords: 3)]
-        public ?string $bio = null;
-    };
-
-    $component2 = new class
-    {
-        #[Fakeable('sentence', seed: 42, formatterArguments: ['nbWords' => 3])]
-        public ?string $bio = null;
-    };
-
-    $result1 = (new FakeableResolver)->resolve($component1);
-    $result2 = (new FakeableResolver)->resolve($component2);
-
-    expect($result1['bio'])->toBe($result2['bio']);
 });

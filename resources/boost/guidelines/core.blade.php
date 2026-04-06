@@ -8,7 +8,7 @@ All must be true: `config('fakeable.enabled')`, `app()->environment('local')`, r
 
 ### Property-level: Faker formatters
 
-Use `TomEasterbrook\LivewireFakeable\Attributes\Fakeable` on **public** properties. The first argument is the Faker method name; optional `seed` for stable values. Use the named `formatterArguments` parameter to pass arguments to the Faker formatter cleanly. A bare `#[Fakeable]` (no formatter) will infer the formatter from the property name (e.g. `$email` → `safeEmail`, `$city` → `city`, `$phone` → `phoneNumber`) or fall back to the property type (`string` → `word`, `int` → `randomNumber`, `float` → `randomFloat`, `bool` → `boolean`). Explicit formatters always take precedence.
+Use `TomEasterbrook\LivewireFakeable\Attributes\Fakeable` on **public** properties. The first argument is the Faker method name; optional `seed` for stable values; additional named arguments are passed through to the Faker formatter. A bare `#[Fakeable]` (no formatter) will infer the formatter from the property name (e.g. `$email` → `safeEmail`, `$city` → `city`, `$phone` → `phoneNumber`) or fall back to the property type (`string` → `word`, `int` → `randomNumber`, `float` → `randomFloat`, `bool` → `boolean`). Explicit formatters always take precedence.
 
 @verbatim
 <code-snippet name="Livewire Fakeable property attributes" lang="php">
@@ -23,21 +23,16 @@ class EditProfilePage extends Component
     #[Fakeable('safeEmail')]
     public string $email = '';
 
-    // Preferred: use named formatterArguments for formatter parameters
-    #[Fakeable('sentence', formatterArguments: [12])]
-    public string $title = '';
-
-    // Alternative: variadic named args also work
     #[Fakeable('sentence', nbWords: 3)]
-    public string $subtitle = '';
+    public string $title = '';
 
     #[Fakeable('name', seed: 42)]
     public string $stableName = '';
 
-    #[Fakeable('boolean', formatterArguments: [100])]
+    #[Fakeable('boolean', chanceOfGettingTrue: 100)]
     public bool $alwaysTrue = false;
 
-    #[Fakeable('randomElement', formatterArguments: [['1 week', '2 weeks', '1 month']])]
+    #[Fakeable('randomElement', array: ['1 week', '2 weeks', '1 month'])]
     public string $duration = '';
 }
 </code-snippet>

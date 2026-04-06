@@ -136,10 +136,10 @@ it('fills array properties with empty placeholder structures', function () {
         );
 });
 
-it('fills properties using named formatterArguments syntax', function () {
+it('fills properties using named formatter arguments', function () {
     $instance = new class extends Component
     {
-        #[Fakeable('sentence', formatterArguments: [3])]
+        #[Fakeable('sentence', nbWords: 3)]
         public ?string $title = null;
 
         public function render()

@@ -55,22 +55,17 @@ class EditProfilePage extends Component
 }
 ```
 
-Pass arguments through to Faker using the named `formatterArguments` parameter, or fix a seed for stable reloads (screenshots, demos):
+Pass arguments through to Faker using named parameters, or fix a seed for stable reloads (screenshots, demos):
 
 ```php
-// Preferred: named formatterArguments
-#[Fakeable('sentence', formatterArguments: [12])]
+#[Fakeable('sentence', nbWords: 3)]
 public string $title = '';
 
-#[Fakeable('boolean', formatterArguments: [100])]
+#[Fakeable('boolean', chanceOfGettingTrue: 100)]
 public bool $alwaysTrue = false;
 
-#[Fakeable('randomElement', formatterArguments: [['draft', 'published', 'archived']])]
+#[Fakeable('randomElement', array: ['draft', 'published', 'archived'])]
 public string $status = '';
-
-// Alternative: variadic named args still work
-#[Fakeable('sentence', nbWords: 3)]
-public string $subtitle = '';
 
 #[Fakeable('name', seed: 42)]
 public string $name = '';

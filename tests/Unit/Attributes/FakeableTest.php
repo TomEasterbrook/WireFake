@@ -34,26 +34,6 @@ it('can be instantiated with a seed and formatter arguments', function () {
         ->and($fakeable->formatterArguments)->toBe(['words' => 3]);
 });
 
-it('can be instantiated with named formatterArguments', function () {
-    $fakeable = new Fakeable('sentence', formatterArguments: [12]);
-
-    expect($fakeable->formatter)->toBe('sentence')
-        ->and($fakeable->seed)->toBeNull()
-        ->and($fakeable->formatterArguments)->toBe([12]);
-});
-
-it('prefers explicit formatterArguments over variadic arguments', function () {
-    $fakeable = new Fakeable('sentence', null, 1, formatterArguments: [12]);
-
-    expect($fakeable->formatterArguments)->toBe([12]);
-});
-
-it('falls back to variadic arguments when formatterArguments is empty', function () {
-    $fakeable = new Fakeable('sentence', nbWords: 3);
-
-    expect($fakeable->formatterArguments)->toBe(['nbWords' => 3]);
-});
-
 it('can be instantiated with a class FQCN', function () {
     $fakeable = new Fakeable(stdClass::class);
 

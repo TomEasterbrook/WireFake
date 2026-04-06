@@ -7,7 +7,6 @@ All notable changes to Livewire Fakeable will be documented in this file.
 ### Added
 
 - **Deep empty detection for arrays** — arrays pre-filled with empty placeholder structures (all leaves `null`, `''`, or `[]`) are now treated as empty and replaced with fake data
-- **Named `formatterArguments` parameter** — pass formatter arguments explicitly via `#[Fakeable('sentence', formatterArguments: [12])]` instead of relying on positional args; variadic syntax remains supported for backwards compatibility
 
 ## 0.1.0 - 2026-04-05
 
